@@ -1,9 +1,7 @@
-from pydantic import PostgresDsn
-from pydantic_settings import BaseSettings
+import os
+from dataclasses import dataclass
 
 
-class Settings(BaseSettings):
-    db_url: PostgresDsn
-
-    class Config:
-        env_file = '.env'
+@dataclass
+class Settings:
+    db_url: str = os.getenv('DB_URL') or 'sqlite+aiosqlite:///sqlite.db'
