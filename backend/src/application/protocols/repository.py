@@ -5,12 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.db import Base
 
-ModelType = TypeVar('ModelType', bound=Base)
+
+ModelType = TypeVar("ModelType", bound=Base)
 
 
 class AbstractRepository(ABC):
     @abstractmethod
-    async def find_one(self): ...
+    async def find_one(self):
+        ...
 
 
 class SQLAlchemyRepository(AbstractRepository):
@@ -19,4 +21,5 @@ class SQLAlchemyRepository(AbstractRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def find_one(self): ...
+    async def find_one(self):
+        ...

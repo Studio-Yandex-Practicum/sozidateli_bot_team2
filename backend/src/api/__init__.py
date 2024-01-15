@@ -1,3 +1,4 @@
-from . import users
+from . import meetings, users
 
-routers = (users.router,)
+
+routers = (users.router, meetings.router)
