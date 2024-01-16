@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class MeetingCreate(BaseModel):
@@ -11,9 +11,8 @@ class MeetingCreate(BaseModel):
 class MeetingDB(BaseModel):
     """Pydantic-схема для базы данных."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     date: datetime
     description: str
-
-    class Config:
-        from_attributes = True

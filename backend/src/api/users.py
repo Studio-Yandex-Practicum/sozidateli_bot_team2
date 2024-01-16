@@ -1,9 +1,12 @@
+from http import HTTPStatus
+
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.api.validators import validate_user_exists
 from src.application.repositories import BaseRepository
 from src.containers import Container
+from src.core.exceptions import ObjectAlreadyExists
 from src.domain.schemas import UserCreate, UserDB
 
 
@@ -32,6 +35,12 @@ async def create_user(
     ),
 ):
     """Создать пользователя."""
-    await validate_user_exists(user)
+    try:
+        await validate_user_exists(user)
+    except ObjectAlreadyExists:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Пользователь с такими параметрами уже существует!",
+        )
     new_user = await user_repository.create(user)
     return new_user

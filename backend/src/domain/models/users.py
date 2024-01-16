@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.db import Base
 
@@ -6,6 +6,6 @@ from src.infrastructure.db import Base
 class User(Base):
     """Модель пользователя."""
 
-    name = Column(String(255), nullable=False)
-    phone = Column(String(11), unique=True)
-    email = Column(String(255), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(nullable=False)
+    phone: Mapped[str] = mapped_column(unique=True)
+    email: Mapped[str] = mapped_column(unique=True, nullable=False)

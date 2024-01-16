@@ -1,6 +1,9 @@
 import re
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, validator
+
+
+NUMBER_RE = r"^(\+7|8)?[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$"
 
 
 class UserCreate(BaseModel):
@@ -12,7 +15,7 @@ class UserCreate(BaseModel):
 
     @validator("phone")
     def validate_phone(cls, value):
-        if not re.match("^[0-9]{11}$", value):
+        if not re.match(NUMBER_RE, value):
             raise ValueError(
                 "Номер телефона должен состоять только из 11 цифр."
             )
@@ -22,7 +25,6 @@ class UserCreate(BaseModel):
 class UserDB(UserCreate):
     """Pydantic-схема для базы данных."""
 
-    id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    id: int
