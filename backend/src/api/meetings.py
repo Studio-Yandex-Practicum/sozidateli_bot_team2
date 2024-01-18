@@ -1,50 +1,91 @@
-from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends
+from http import HTTPStatus
 
-from src.application.repositories import BaseRepository
-from src.containers import Container
-from src.domain.schemas import MeetingCreate, MeetingDB
+from fastapi import APIRouter, HTTPException
+
+from src.application.services import MeetingServices
+from src.core.exceptions import (
+    InvalidDate,
+    MeetingClosed,
+    ObjectIsNoneException,
+)
+from src.domain.schemas import (
+    GetMeeting,
+    MeetingCreate,
+    MeetingParticipants,
+    MeetingUpdate,
+)
+
+from .dependencies import UoWDep
 
 
 router = APIRouter(prefix="/meetings", tags=["meetings"])
 
 
 @router.get(
-    "/", response_model=list[MeetingDB], summary="Получить список собраний."
+    "/", response_model=list[GetMeeting], summary="Получить список собраний."
 )
-@inject
-async def get_meetings(
-    meeting_repository: BaseRepository = Depends(
-        Provide[Container.meeting_repository]
-    ),
-):
+async def get_meetings(uow: UoWDep):
     """Получение списка всех собраний."""
-    return await meeting_repository.get_list()
+    return await MeetingServices().get_meetings(uow)
 
 
-@router.post("/", response_model=MeetingDB, summary="Создание собрания.")
-@inject
-async def create_meeting(
-    meeting: MeetingCreate,
-    meeting_repository: BaseRepository = Depends(
-        Provide[Container.meeting_repository]
-    ),
-):
+@router.post("/", response_model=GetMeeting, summary="Создание собрания.")
+async def create_meeting(uow: UoWDep, meeting: MeetingCreate):
     """Создать собрание."""
-    new_meeting = await meeting_repository.create(meeting)
-    return new_meeting
+    try:
+        return await MeetingServices().create_meeting(uow, meeting)
+    except InvalidDate:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Дата собрания не может быть меньше текущей.",
+        )
 
 
-@router.delete(
-    "/{meeting_id}", response_model=MeetingDB, summary="Удалить собрание."
+@router.patch(
+    "/{id}", response_model=GetMeeting, summary="Редактирование собрания."
 )
-@inject
-async def delete_meeting(
-    meeting_id: int,
-    meeting_repository: BaseRepository = Depends(
-        Provide[Container.meeting_repository]
-    ),
-):
+async def update_meeting(uow: UoWDep, id: int, meeting: MeetingUpdate):
+    try:
+        return await MeetingServices().update_meeting(uow, id, meeting)
+    except InvalidDate:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Дата собрания не может быть меньше текущей.",
+        )
+    except MeetingClosed:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Закрытое собрание нельзя редактировать.",
+        )
+
+
+@router.delete("/{id}", response_model=GetMeeting, summary="Удалить собрание.")
+async def delete_meeting(uow: UoWDep, id: int):
     """Удалить собрание с указанным id."""
-    meeting = await meeting_repository.get_by_attributes(id=meeting_id)
-    return await meeting_repository.remove(meeting)
+    try:
+        return await MeetingServices().delete_meeting(uow, id)
+    except ObjectIsNoneException:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Собрания с таким id не существует!",
+        )
+    except MeetingClosed:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Закрытое собрание нельзя удалить.",
+        )
+
+
+@router.get(
+    "/{id}/participants",
+    response_model=MeetingParticipants,
+    summary="Список записавшихся на собрание.",
+)
+async def get_participants_list(uow: UoWDep, id: int):
+    try:
+        return await MeetingServices().get_participants(uow, id)
+    except ObjectIsNoneException:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Собрания с таким id не существует!",
+        )

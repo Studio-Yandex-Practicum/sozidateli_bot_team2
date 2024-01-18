@@ -6,12 +6,21 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, validator
 NUMBER_RE = r"^(\+7|8)?[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$"
 
 
-class UserCreate(BaseModel):
-    """Pydantic-схема для создания пользователя."""
+class GetUser(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
+    id: int
+    name: str
+    phone: str
+    email: EmailStr
+    meeting_id: int
+
+
+class UserCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     phone: str
     email: EmailStr
+    meeting_id: int
 
     @validator("phone")
     def validate_phone(cls, value):
@@ -22,9 +31,8 @@ class UserCreate(BaseModel):
         return value
 
 
-class UserDB(UserCreate):
-    """Pydantic-схема для базы данных."""
-
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
+class UserUpdate(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    email: EmailStr | None = None
+    meeting_id: int | None = None
