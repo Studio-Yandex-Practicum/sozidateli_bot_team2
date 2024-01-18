@@ -3,23 +3,27 @@ from typing import Type
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from src.application.repositories.users import UserRepository
+from src.application.repositories import MeetingRepository, UserRepository
 
 
 class UoW(ABC):
     users = Type[UserRepository]
 
     @abstractmethod
-    async def __aenter__(self): ...
+    async def __aenter__(self):
+        ...
 
     @abstractmethod
-    async def __aexit__(self, *args): ...
+    async def __aexit__(self, *args):
+        ...
 
     @abstractmethod
-    async def commit(self): ...
+    async def commit(self):
+        ...
 
     @abstractmethod
-    async def rollback(self): ...
+    async def rollback(self):
+        ...
 
 
 class UnitOfWork:
@@ -30,6 +34,7 @@ class UnitOfWork:
         self.session = self.session_factory()
 
         self.users = UserRepository(self.session)
+        self.meetings = MeetingRepository(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()
