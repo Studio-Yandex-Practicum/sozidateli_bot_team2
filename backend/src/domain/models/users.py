@@ -1,3 +1,4 @@
+from fastapi import Request
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -18,3 +19,6 @@ class User(Base):
         attrs = self.__dict__.copy()
         attrs.pop("_sa_instance_state", None)
         return GetUser(**attrs)
+
+    async def __admin_repr__(self, request: Request):
+        return f"{self.name}"
