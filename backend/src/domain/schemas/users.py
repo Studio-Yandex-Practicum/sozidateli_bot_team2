@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 NUMBER_RE = r"^(\+7|8)?[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$"
@@ -22,7 +22,8 @@ class UserCreate(BaseModel):
     email: EmailStr
     meeting_id: int
 
-    @validator("phone")
+    @field_validator("phone")
+    @classmethod
     def validate_phone(cls, value):
         if not re.match(NUMBER_RE, value):
             raise ValueError(
