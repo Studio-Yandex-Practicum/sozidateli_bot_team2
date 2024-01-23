@@ -6,13 +6,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.db import Base
 
-
 ModelType = TypeVar("ModelType", bound=Base)
 
 
 class AbstractRepository(ABC):
     @abstractmethod
+    async def add_one(self):
+        ...
+
+    @abstractmethod
+    async def update_one(self):
+        ...
+
+    @abstractmethod
     async def find_one(self):
+        ...
+
+    @abstractmethod
+    async def find_all(self):
+        ...
+
+    @abstractmethod
+    async def delete_one(self):
         ...
 
 
