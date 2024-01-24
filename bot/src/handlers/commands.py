@@ -1,10 +1,8 @@
-import os
-
 from aiogram import Bot, F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
 from aiogram_forms.forms import FormsManager
-from dotenv import load_dotenv
+from core import settings
 
 from .constants import (CONTACTS_INFO, HELLO_MESSAGE, HELP_INFO,
                         INTERVIEW_INVITATION, MAKE_AN_APPOINTMENT,
@@ -12,9 +10,7 @@ from .constants import (CONTACTS_INFO, HELLO_MESSAGE, HELP_INFO,
                         START_FILL_INTERVIEW_FORM_MESSAEGE,
                         START_FILL_METTING_FORM_MESSAEGE,
                         START_VOLUNTEERING_INFO)
-from .forms import RegistrationForm  # noqa
-
-load_dotenv()
+from .forms import RegistrationForm, RegistrationForm1  # noqa
 
 router = Router()
 
@@ -43,12 +39,20 @@ async def show_metting_form(
     message: Message, bot: Bot, forms: FormsManager
 ) -> None:
     await bot.send_message(
-        os.getenv('MANAGER_CHAT_ID'),
+        settings.manager_chat_id,
         START_FILL_METTING_FORM_MESSAEGE.format(
             username=message.from_user.username
         )
     )
     await forms.show('registration-form')
+
+
+@router.message(Command(commands=['registration-form']))
+async def show_settings(message: Message, forms: FormsManager):
+    settings: dict = await forms.get_data('registration-form')
+    print(settings)
+    # for s in settings:
+    #    print(settings[s])
 
 
 @router.message(Command(commands=['go_to_interview']))
@@ -58,12 +62,12 @@ async def show_interview_form(
 ) -> None:
     await message.answer(INTERVIEW_INVITATION)
     await bot.send_message(
-        os.getenv('MANAGER_CHAT_ID'),
+        settings.manager_chat_id,
         START_FILL_INTERVIEW_FORM_MESSAEGE.format(
             username=message.from_user.username
         )
     )
-    await forms.show('registration-form')
+    await forms.show('registration-form1')
 
 
 @router.message(Command(commands=['help']))
