@@ -8,8 +8,8 @@ from aiogram_forms import dispatcher
 from core import settings
 from handlers import routers
 from handlers.constants import (CONTACTS_COMMAND, GO_TO_INTERVIEW_COMMAND,
-                                GO_TO_OPEN_MITTING_COMMND, HELP_COMMAND,
-                                METTING_SCHEDULE_COMMAND)
+                                GO_TO_OPEN_MEETING_COMMND, HELP_COMMAND,
+                                MEETING_SCHEDULE_COMMAND)
 from middlewares.throttling import ThrottlingMiddleware
 
 
@@ -17,12 +17,12 @@ async def setup_bot_commands(bot: Bot):
 
     main_menu_commands = [
         BotCommand(command='/help', description=HELP_COMMAND),
-        BotCommand(command='/go_to_open_mitting',
-                   description=GO_TO_OPEN_MITTING_COMMND),
+        BotCommand(command='/go_to_open_meeting',
+                   description=GO_TO_OPEN_MEETING_COMMND),
         BotCommand(command='/go_to_interview',
                    description=GO_TO_INTERVIEW_COMMAND),
         BotCommand(command='/meeting_schedule',
-                   description=METTING_SCHEDULE_COMMAND),
+                   description=MEETING_SCHEDULE_COMMAND),
         BotCommand(command='/contacts', description=CONTACTS_COMMAND)
     ]
     await bot.set_my_commands(main_menu_commands)
