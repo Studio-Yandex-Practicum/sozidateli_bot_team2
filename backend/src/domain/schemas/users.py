@@ -2,6 +2,8 @@ import re
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, validator
 
+from src.domain.models.assistance import AssistanceSegment
+
 
 NUMBER_RE = r"^(\+7|8)?[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$"
 
@@ -14,6 +16,7 @@ class GetUser(BaseModel):
     phone: str
     email: EmailStr
     meeting_id: int
+    assistance_segment: AssistanceSegment
 
 
 class UserCreate(BaseModel):
@@ -21,6 +24,7 @@ class UserCreate(BaseModel):
     phone: str
     email: EmailStr
     meeting_id: int
+    assistance_segment: AssistanceSegment | None = "not_decide"
 
     @validator("phone")
     def validate_phone(cls, value):
@@ -36,3 +40,4 @@ class UserUpdate(BaseModel):
     phone: str | None = None
     email: EmailStr | None = None
     meeting_id: int | None = None
+    assistance_segment: AssistanceSegment | None = None
