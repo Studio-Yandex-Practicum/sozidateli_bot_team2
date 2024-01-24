@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from src.domain.models.assistance import AssistanceSegment
 
@@ -26,7 +26,8 @@ class UserCreate(BaseModel):
     meeting_id: int
     assistance_segment: AssistanceSegment | None = "not_decide"
 
-    @validator("phone")
+    @field_validator("phone")
+    @classmethod
     def validate_phone(cls, value):
         if not re.match(NUMBER_RE, value):
             raise ValueError(
