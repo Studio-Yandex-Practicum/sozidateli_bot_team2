@@ -1,3 +1,3 @@
-from . import start_command
+from . import commands
 
-routers = (start_command.router,)
+routers = (commands.router,)

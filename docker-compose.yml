@@ -11,7 +11,7 @@ services:
 
   postgresql:
     image: postgres:16
-    env_file: ./env
+    env_file: ./.env
     restart: always
     ports:
       - "5432:5432"
@@ -20,14 +20,14 @@ services:
 
   backend:
     build: ./backend
-    env_file: ./env
+    env_file: ./.env
     restart: always
     depends_on:
       - postgresql
 
   bot:
     build: ./bot
-    env_file: ./env
+    env_file: ./.env
     restart: always
     depends_on:
       - postgresql
