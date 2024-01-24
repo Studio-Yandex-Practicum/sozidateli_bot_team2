@@ -11,7 +11,7 @@ class UserService:
     async def validate_user_exists(self, uow: UoW, search_params):
         """Проверка уникальности пользователя."""
         search_params = {
-            key: value for key, value in search_params if value != None
+            key: value for key, value in search_params if value is not None
         }
         if not search_params:
             return
@@ -51,8 +51,11 @@ class UserService:
         meeting_id = schema.meeting_id
         await self.validate_meeting_exists(uow, meeting_id)
         del schema.meeting_id
+        assistance_segment = schema.assistance_segment
+        del schema.assistance_segment
         await self.validate_user_exists(uow, schema)
         schema.meeting_id = meeting_id
+        schema.assistance_segment = assistance_segment
         await self.validate_meeting_is_open(uow, meeting_id)
         async with uow:
             user = await uow.users.add_one(**schema.model_dump())
@@ -65,13 +68,17 @@ class UserService:
         """Обновить инфо о пользователе."""
         meeting_id = schema.meeting_id
         del schema.meeting_id
-        await self.validate_user_exists(uow, schema)
+        if assistance_segment := schema.assistance_segment:
+            del schema.assistance_segment
+            await self.validate_user_exists(uow, schema)
+            schema.assistance_segment = assistance_segment
         schema.meeting_id = meeting_id
-        if schema.meeting_id > 0:
-            await self.validate_meeting_exists(uow, schema.meeting_id)
-            await self.validate_meeting_is_open(uow, schema.meeting_id)
-        else:
-            raise ObjectIsNoneException
+        if meeting_id:
+            if meeting_id > 0:
+                await self.validate_meeting_exists(uow, meeting_id)
+                await self.validate_meeting_is_open(uow, meeting_id)
+            else:
+                raise ObjectIsNoneException
         async with uow:
             user = await uow.users.update_one(id=id, **schema.model_dump())
             await uow.commit()
