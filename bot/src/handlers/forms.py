@@ -64,7 +64,7 @@ class RegistrationForm1(RegistrationForm):
         cls, message: Message, forms: FormsManager, **data
     ) -> None:
 
-        registration_data = await forms.get_data('registration-form')
+        registration_data = await forms.get_data('registration-form1')
         volunteering_type = ''.join(
             [item[0] for item in VOLUNTEERING_TYPE
                 if registration_data['volunteering_type'] in item]
