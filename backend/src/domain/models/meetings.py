@@ -1,6 +1,6 @@
 from datetime import datetime
-from fastapi import Request
 
+from fastapi import Request
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.domain.schemas import GetMeeting
