@@ -1,3 +1,5 @@
+from typing import Union
+
 from src.application.protocols.unit_of_work import UoW
 from src.core.exceptions import (
     MeetingClosed,
@@ -8,7 +10,9 @@ from src.domain.schemas import GetUser, UserCreate, UserUpdate
 
 
 class UserService:
-    async def validate_user_exists(self, uow: UoW, search_params):
+    async def validate_user_exists(
+        self, uow: UoW, search_params: Union[UserCreate, UserUpdate]
+    ) -> None:
         """Проверка уникальности пользователя."""
         search_params = {
             key: value for key, value in search_params if value is not None
@@ -20,21 +24,21 @@ class UserService:
         if user:
             raise ObjectAlreadyExists
 
-    async def validate_meeting_exists(self, uow: UoW, id: int):
+    async def validate_meeting_exists(self, uow: UoW, id: int) -> None:
         """Проверка что собрание с таким id существует."""
         async with uow:
             meeting = await uow.meetings.find_one(id=id)
             if not meeting:
                 raise ObjectIsNoneException
 
-    async def validate_meeting_is_open(self, uow: UoW, id: int):
+    async def validate_meeting_is_open(self, uow: UoW, id: int) -> None:
         """Проверка что запись на собрание открыта."""
         async with uow:
             meeting = await uow.meetings.find_one(id=id)
             if not meeting.is_open:
                 raise MeetingClosed
 
-    async def get_users(self, uow: UoW):
+    async def get_users(self, uow: UoW) -> list[GetUser]:
         """Получить список пользователей."""
         async with uow:
             users = await uow.users.find_all()

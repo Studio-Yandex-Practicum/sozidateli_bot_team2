@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from sqlalchemy import select
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
@@ -19,9 +20,11 @@ from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 from starlette_admin.i18n import I18nConfig
 
+from src.core import Settings as settings
 from src.domain.models import Meeting, User
 from src.domain.models.assistance import AssistanceSegment
 from src.domain.schemas import MeetingCreate, UserCreate
+from src.infrastructure.db import async_session_maker
 
 from .db import engine
 from .provider import UsernameAndPasswordProvider
@@ -52,6 +55,20 @@ class UserView(ModelView):
                 {"meeting": "Надо выбрать дату собрания."}
             )
         meeting = data.pop("meeting")
+        user_attrs = {
+            User.name: "name",
+            User.phone: "phone",
+            User.email: "email",
+        }
+        for attr, attr_name in user_attrs.items():
+            async with async_session_maker() as session:
+                users = await session.execute(
+                    select(User).where(attr == data[attr_name])
+                )
+            if users.scalars().all():
+                raise FormValidationError(
+                    {attr_name: "Уже есть участник с такими данными."}
+                )
         data["meeting_id"] = meeting.id
         await super().validate(request, data)
         if assistance_segment_value := data.get("assistance_segment"):
@@ -83,7 +100,11 @@ admin = Admin(
     engine,
     title="Проект 'Созидатели'",
     i18n_config=I18nConfig(default_locale="ru"),
-    middlewares=[Middleware(SessionMiddleware, secret_key="1234567890")],
+    middlewares=[
+        Middleware(
+            SessionMiddleware, secret_key=settings.admin_middleware_secret
+        )
+    ],
     auth_provider=UsernameAndPasswordProvider(),
 )
 
