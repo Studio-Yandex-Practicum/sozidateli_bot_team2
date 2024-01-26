@@ -108,3 +108,7 @@ GO_TO_INTERVIEW_COMMAND = 'форма регистрации на собесед
 MEETING_SCHEDULE_COMMAND = 'расписание открытых встреч'
 CONTACTS_COMMAND = 'контакты'
 HELP_COMMAND = 'справка по работе бота'
+
+INFO_ABOUT_MEETING = ('Открытая встреча состоится\n{date}.')
+
+SELECT_DATE_QUESTION = ('Выберите дату встречи')

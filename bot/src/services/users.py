@@ -1,12 +1,12 @@
-from collections import Generator
+from collections.abc import Generator
 from http import HTTPStatus
 
 import aiohttp
 from aiohttp import ClientResponse
 
-from src.core import settings
-from src.schemas import users
-from src.services.exceptions import HTTPRequestError
+from core import settings
+from schemas import users
+from services.exceptions import HTTPRequestError
 
 
 class UserService:
@@ -22,6 +22,7 @@ class UserService:
         async with aiohttp.ClientSession(settings.url) as session:
             async with session.post(self._path,
                                     data=user.model_dump()) as response:
+                print(response)
                 return await self._get_user(response)
 
     async def update_user(self, id: int,

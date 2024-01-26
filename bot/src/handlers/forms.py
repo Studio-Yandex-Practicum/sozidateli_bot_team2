@@ -2,6 +2,8 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram_forms import dispatcher
 from aiogram_forms.forms import Form, FormsManager, fields
 from core import settings
+from services import meetings, users
+from schemas import users as schemas_users
 
 from .constants import (DOCUMENTS_FOR_INTERVIEW, INFO_ABOUT_USER_FOR_INTERVIEW,
                         INFO_ABOUT_USER_FOR_MEETING,
@@ -10,6 +12,17 @@ from .constants import (DOCUMENTS_FOR_INTERVIEW, INFO_ABOUT_USER_FOR_INTERVIEW,
                         VOLUENTEERING_TYPE_QUESTION, VOLUNTEERING_TYPE)
 from .validation import (validate_email_format, validate_phone_number_format,
                          validate_volunteering_type_field)
+
+
+async def get_date_id():
+    meeting_service = meetings.MeetingService()
+    all_meetings = await meeting_service.get_meetings()
+    open_meeting = []
+    for meeting in all_meetings:
+        if meeting.is_open:
+            open_meeting.append((meeting.id, meeting.date))
+    open_meeting.sort(key=lambda a: a[1])
+    return open_meeting[0][0]
 
 
 @dispatcher.register('registration-for-meeting-form')
@@ -43,6 +56,16 @@ class RegistrationForMeetingForm(Form):
             [item[0] for item in VOLUNTEERING_TYPE
                 if registration_data['volunteering_type'] in item]
         )
+
+        user_service = users.UserService()
+        user = schemas_users.UserCreate(
+            name="Name",
+            phone='+79636344989',
+            email='julia@mail.com',
+            meeting_id=3
+        )
+        print(user)
+        await user_service.create_user(user)
 
         await data['bot'].send_message(
             settings.manager_chat_id,

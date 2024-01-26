@@ -1,12 +1,12 @@
-from collections import Generator
+from collections.abc import Generator
 from http import HTTPStatus
 
 import aiohttp
 from aiohttp import ClientResponse
 
-from src.core import settings
-from src.schemas import meetings
-from src.services.exceptions import HTTPRequestError
+from core import settings
+from schemas import meetings
+from services.exceptions import HTTPRequestError
 
 
 class MeetingService:
