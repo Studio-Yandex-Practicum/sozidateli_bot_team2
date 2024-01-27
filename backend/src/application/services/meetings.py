@@ -18,12 +18,12 @@ DATE_FORMAT = "%d %m %Y %H:%M:%S"
 
 
 class MeetingServices:
-    async def validate_meeting_date(self, date):
+    async def validate_meeting_date(self, date) -> None:
         """Валидация даты. Должна быть в будущем."""
         if date.strftime(DATE_FORMAT) < datetime.now().strftime(DATE_FORMAT):
             raise InvalidDate
 
-    async def get_meetings(self, uow: UoW):
+    async def get_meetings(self, uow: UoW) -> list[GetMeeting]:
         """Получить список собраний."""
         async with uow:
             meetings = await uow.meetings.find_all()

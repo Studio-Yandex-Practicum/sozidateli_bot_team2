@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.db import Base
 
+
 ModelType = TypeVar("ModelType", bound=Base)
 
 
