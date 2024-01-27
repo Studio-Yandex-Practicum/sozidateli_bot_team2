@@ -20,7 +20,7 @@ def validate_email_format(value: str):
 def validate_phone_number_format(value: str):
     """Phone number validator."""
     regex = re.compile(
-        r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$'
+        r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'
     )
     match = regex.match(value)
     if not match:
