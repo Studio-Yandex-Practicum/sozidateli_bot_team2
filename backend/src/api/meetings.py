@@ -14,9 +14,7 @@ from src.domain.schemas import (
     MeetingParticipants,
     MeetingUpdate,
 )
-
 from .dependencies import UoWDep
-
 
 router = APIRouter(prefix="/meetings", tags=["meetings"])
 
@@ -29,15 +27,27 @@ async def get_meetings(uow: UoWDep):
     return await MeetingServices().get_meetings(uow)
 
 
+@router.get("/{id}", response_model=GetMeeting, summary="Получить собрание.")
+async def get_meeting(id: int, uow: UoWDep):
+    """Получить собрание."""
+    try:
+        return await MeetingServices().get_meeting(uow, id)
+    except AttributeError:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=f"Собрание с id = {id} отсутствует."
+        )
+
+
 @router.post("/", response_model=GetMeeting, summary="Создание собрания.")
 async def create_meeting(uow: UoWDep, meeting: MeetingCreate):
     """Создать собрание."""
     try:
         return await MeetingServices().create_meeting(uow, meeting)
-    except InvalidDate:
+    except InvalidDate() as error:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail="Дата собрания не может быть меньше текущей.",
+            detail=str(error),
         )
 
 
@@ -45,34 +55,27 @@ async def create_meeting(uow: UoWDep, meeting: MeetingCreate):
     "/{id}", response_model=GetMeeting, summary="Редактирование собрания."
 )
 async def update_meeting(uow: UoWDep, id: int, meeting: MeetingUpdate):
+    """Обновление собрания."""
     try:
         return await MeetingServices().update_meeting(uow, id, meeting)
-    except InvalidDate:
+    except (InvalidDate, ObjectIsNoneException, MeetingClosed) as error:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail="Дата собрания не может быть меньше текущей.",
-        )
-    except MeetingClosed:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail="Закрытое собрание нельзя редактировать.",
+            detail=str(error),
         )
 
 
-@router.delete("/{id}", response_model=GetMeeting, summary="Удалить собрание.")
+@router.delete(
+    "/{id}", response_model=GetMeeting, summary="Удалить собрание."
+)
 async def delete_meeting(uow: UoWDep, id: int):
     """Удалить собрание с указанным id."""
     try:
         return await MeetingServices().delete_meeting(uow, id)
-    except ObjectIsNoneException:
+    except (ObjectIsNoneException, MeetingClosed) as error:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail="Собрания с таким id не существует!",
-        )
-    except MeetingClosed:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail="Закрытое собрание нельзя удалить.",
+            detail=str(error),
         )
 
 
@@ -84,8 +87,8 @@ async def delete_meeting(uow: UoWDep, id: int):
 async def get_participants_list(uow: UoWDep, id: int):
     try:
         return await MeetingServices().get_participants(uow, id)
-    except ObjectIsNoneException:
+    except ObjectIsNoneException() as error:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail="Собрания с таким id не существует!",
+            detail=str(error),
         )
