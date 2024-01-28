@@ -15,7 +15,7 @@ class Meeting(Base):
     date: Mapped[dt.datetime] = mapped_column(nullable=False)
     is_open: Mapped[bool] = mapped_column(default=True)
     description: Mapped[str] = mapped_column(nullable=True)
-    users = relationship("User", back_populates="meeting")
+    users = relationship("User", back_populates="meeting", lazy="selectin")
 
     async def __admin_repr__(self, _: Request):
         return f"{self.date.strftime(DATE_FORMAT)}"
