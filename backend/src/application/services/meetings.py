@@ -1,9 +1,10 @@
-from datetime import datetime
+import datetime as dt
+from zoneinfo import ZoneInfo
 
 from src.application.protocols.unit_of_work import UoW
+from src.core.constants import DATE_FORMAT, ZONEINFO
 from src.core.exceptions import (
     InvalidDate,
-    MeetingClosed,
     ObjectIsNoneException,
 )
 from src.domain.schemas import (
@@ -12,17 +13,10 @@ from src.domain.schemas import (
     MeetingParticipants,
     MeetingUpdate,
 )
+from .base import BaseService
 
 
-DATE_FORMAT = "%d %m %Y %H:%M:%S"
-
-
-class MeetingServices:
-    async def validate_meeting_date(self, date) -> None:
-        """Валидация даты. Должна быть в будущем."""
-        if date.strftime(DATE_FORMAT) < datetime.now().strftime(DATE_FORMAT):
-            raise InvalidDate
-
+class MeetingServices(BaseService):
     async def get_meetings(self, uow: UoW) -> list[GetMeeting]:
         """Получить список собраний."""
         async with uow:
@@ -36,29 +30,25 @@ class MeetingServices:
             return meeting.to_read_model()
 
     async def create_meeting(
-        self, uow: UoW, schema: MeetingCreate
+            self, uow: UoW, schema: MeetingCreate
     ) -> GetMeeting:
         """Создать собрание."""
-        await self.validate_meeting_date(schema.date)
+        self._validate_meeting_date(schema.date)
         async with uow:
             meeting = await uow.meetings.add_one(**schema.model_dump())
             await uow.commit()
             return meeting.to_read_model()
 
     async def update_meeting(
-        self, uow: UoW, id: int, schema: MeetingUpdate
+            self, uow: UoW, id: int, schema: MeetingUpdate
     ) -> GetMeeting:
-        """Обновить инфо о собрании."""
+        """Обновить информацию о собрании."""
         if schema.date:
-            await self.validate_meeting_date(schema.date)
+            self._validate_meeting_date(schema.date)
         async with uow:
-            meeting = await uow.meetings.find_one(id=id)
-            if not meeting:
-                raise ObjectIsNoneException
-            if not meeting.is_open:
-                raise MeetingClosed
+            await self._check_meeting(id, uow)
             meeting = await uow.meetings.update_one(
-                id=id, **schema.model_dump()
+                id=id, **schema.model_dump(exclude_none=True)
             )
             await uow.commit()
             return meeting.to_read_model()
@@ -66,11 +56,7 @@ class MeetingServices:
     async def delete_meeting(self, uow: UoW, id: int) -> GetMeeting:
         """Удалить собрание."""
         async with uow:
-            meeting = await uow.meetings.find_one(id=id)
-            if not meeting:
-                raise ObjectIsNoneException
-            if not meeting.is_open:
-                raise MeetingClosed
+            await self._check_meeting(id, uow)
             meeting = await uow.meetings.delete_one(id=id)
             await uow.commit()
             return meeting.to_read_model()
@@ -80,13 +66,22 @@ class MeetingServices:
         async with uow:
             meeting = await uow.meetings.find_one(id=id)
             if not meeting:
-                raise ObjectIsNoneException
-            users = await uow.users.find_all_by_attrs(meeting_id=id)
+                raise ObjectIsNoneException()
             participants = MeetingParticipants(
                 id=meeting.id,
                 date=meeting.date,
                 is_open=meeting.is_open,
                 description=meeting.description,
-                users=[user.to_read_model() for user in users],
+                users=[
+                    user.to_read_model() for user in await uow.users.find_all(
+                        meeting_id=id
+                    )
+                ],
             )
             return participants
+
+    def _validate_meeting_date(self, date) -> None:
+        if date.strftime(DATE_FORMAT) < dt.datetime.now(
+                tz=ZoneInfo(ZONEINFO)
+        ).strftime(DATE_FORMAT):
+            raise InvalidDate()
