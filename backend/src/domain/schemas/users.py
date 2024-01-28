@@ -36,7 +36,7 @@ class UserCreate(BaseUser):
         return value
 
 
-class UserUpdate(BaseModel):
+class UserUpdate(UserCreate):
     name: str | None = None
     phone: str | None = None
     email: EmailStr | None = None
