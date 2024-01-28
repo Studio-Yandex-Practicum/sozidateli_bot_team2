@@ -34,7 +34,7 @@ class UserService(BaseService):
             await self._validate_user_exists(uow, schema.phone)
             if schema.meeting_id:
                 await self._check_meeting(schema.meeting_id, uow)
-            user = await uow.users.update(
+            user = await uow.users.update_one(
                 id=id, **schema.model_dump(exclude_none=True)
             )
             await uow.commit()
