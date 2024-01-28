@@ -1,5 +1,7 @@
+import datetime as dt
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
+from zoneinfo import ZoneInfo
 
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -22,6 +24,7 @@ from starlette_admin.i18n import I18nConfig
 
 from src.application.repositories.users import UserRepository
 from src.core import Settings as settings
+from src.core.constants import DATE_FORMAT, ZONEINFO
 from src.domain.models import Meeting, User
 from src.domain.models.enums import AssistanceSegment
 from src.domain.schemas import MeetingCreate, UserCreate
@@ -62,7 +65,7 @@ class UserView(ModelView):
     label = "Участники"
     sortable_fields = [User.meeting]
 
-    async def validate(self, request: Request, data: Dict[str, Any]) -> None:
+    async def validate(self, request: Request, data: dict[str, Any]) -> None:
         errors: dict[str, str] = dict()
         if data["assistance_segment"] is None:
             errors["assistance_segment"] = "Нужно выбрать направление помощи."
@@ -119,6 +122,20 @@ class MeetingView(ModelView):
     label = "Собрания"
     sortable_fields = ["date", "is_open"]
     fields_default_sort = ["date", ("is_open", True)]
+
+    async def validate(self, request: Request, data: dict[str, Any]) -> None:
+        errors: dict[str, str] = dict()
+
+        if data["date"] is None:
+            errors["date"] = "Нужно указать дату собрания."
+        if data["date"] and data["date"].strftime(
+                DATE_FORMAT
+        ) < dt.datetime.now(tz=ZoneInfo(ZONEINFO)).strftime(DATE_FORMAT):
+            errors["date"] = "Дата собрания не может быть меньше текущей."
+        if len(errors) > 0:
+            raise FormValidationError(errors)
+
+        await super().validate(request, data)
 
 
 admin = Admin(
