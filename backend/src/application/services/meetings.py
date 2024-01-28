@@ -72,11 +72,7 @@ class MeetingServices(BaseService):
                 date=meeting.date,
                 is_open=meeting.is_open,
                 description=meeting.description,
-                users=[
-                    user.to_read_model() for user in await uow.users.find_all(
-                        meeting_id=id
-                    )
-                ],
+                users=[user.to_read_model() for user in meeting.users],
             )
             return participants
 
