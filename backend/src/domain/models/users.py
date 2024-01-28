@@ -4,8 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.domain.schemas import GetUser
 from src.infrastructure.db import Base
-
-from .assistance import AssistanceSegment
+from .enums import AssistanceSegment
 
 
 class User(Base):
@@ -20,10 +19,10 @@ class User(Base):
     meeting_id: Mapped[int] = mapped_column(ForeignKey("meeting.id"))
     meeting = relationship("Meeting", back_populates="users")
 
+    async def __admin_repr__(self, _: Request):
+        return f"{self.name}"
+
     def to_read_model(self) -> GetUser:
         attrs = self.__dict__.copy()
         attrs.pop("_sa_instance_state", None)
         return GetUser(**attrs)
-
-    async def __admin_repr__(self, request: Request):
-        return f"{self.name}"
