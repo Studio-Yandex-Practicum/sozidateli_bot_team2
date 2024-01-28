@@ -1,13 +1,13 @@
 import datetime as dt
 from zoneinfo import ZoneInfo
 
-from src.application.protocols.unit_of_work import UoW
-from src.core.constants import DATE_FORMAT, ZONEINFO
-from src.core.exceptions import (
+from app.application.protocols.unit_of_work import UoW
+from app.core.constants import DATE_FORMAT, ZONEINFO
+from app.core.exceptions import (
     InvalidDate,
     ObjectIsNoneException,
 )
-from src.domain.schemas import (
+from app.domain.schemas import (
     GetMeeting,
     MeetingCreate,
     MeetingParticipants,

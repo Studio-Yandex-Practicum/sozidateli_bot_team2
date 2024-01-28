@@ -2,8 +2,8 @@ import re
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
-from src.core.constants import NUMBER_PATTERN
-from src.domain.models.enums import AssistanceSegment
+from app.core.constants import NUMBER_PATTERN
+from app.domain.models.enums import AssistanceSegment
 
 
 

@@ -22,12 +22,12 @@ from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 from starlette_admin.i18n import I18nConfig
 
-from src.application.repositories.users import UserRepository
-from src.core import Settings as settings
-from src.core.constants import DATE_FORMAT, ZONEINFO
-from src.domain.models import Meeting, User
-from src.domain.models.enums import AssistanceSegment
-from src.domain.schemas import MeetingCreate, UserCreate
+from app.application.repositories.users import UserRepository
+from app.core import Settings as settings
+from app.core.constants import DATE_FORMAT, ZONEINFO
+from app.domain.models import Meeting, User
+from app.domain.models.enums import AssistanceSegment
+from app.domain.schemas import MeetingCreate, UserCreate
 from .db import engine
 from .provider import UsernameAndPasswordProvider
 

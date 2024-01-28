@@ -1,6 +1,6 @@
-from src.application.protocols.unit_of_work import UoW
-from src.core.exceptions import UserAlreadyExists, ObjectIsNoneException
-from src.domain.schemas import GetUser, UserCreate, UserUpdate
+from app.application.protocols.unit_of_work import UoW
+from app.core.exceptions import UserAlreadyExists, ObjectIsNoneException
+from app.domain.schemas import GetUser, UserCreate, UserUpdate
 from .base import BaseService
 
 

@@ -2,8 +2,8 @@ from fastapi import Request
 from sqlalchemy import Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.domain.schemas import GetUser
-from src.infrastructure.db import Base
+from app.domain.schemas import GetUser
+from app.infrastructure.db import Base
 from .enums import AssistanceSegment
 
 

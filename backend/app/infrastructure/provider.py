@@ -3,7 +3,7 @@ from starlette.responses import Response
 from starlette_admin.auth import AdminConfig, AdminUser, AuthProvider
 from starlette_admin.exceptions import FormValidationError, LoginFailed
 
-from src.core.settings import Settings
+from app.core.settings import Settings
 
 users = Settings.users
 

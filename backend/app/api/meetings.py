@@ -2,13 +2,13 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, HTTPException
 
-from src.application.services import MeetingServices
-from src.core.exceptions import (
+from app.application.services import MeetingServices
+from app.core.exceptions import (
     InvalidDate,
     MeetingClosed,
     ObjectIsNoneException,
 )
-from src.domain.schemas import (
+from app.domain.schemas import (
     GetMeeting,
     MeetingCreate,
     MeetingParticipants,

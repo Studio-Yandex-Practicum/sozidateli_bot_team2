@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from src.application.protocols.repository import SQLAlchemyRepository
-from src.domain.models.users import User
+from app.application.protocols.repository import SQLAlchemyRepository
+from app.domain.models.users import User
 
 
 class UserRepository(SQLAlchemyRepository):

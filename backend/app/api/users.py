@@ -2,13 +2,13 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, HTTPException
 
-from src.application.services import UserService
-from src.core.exceptions import (
+from app.application.services import UserService
+from app.core.exceptions import (
     MeetingClosed,
     UserAlreadyExists,
     ObjectIsNoneException,
 )
-from src.domain.schemas import GetUser, UserCreate, UserUpdate
+from app.domain.schemas import GetUser, UserCreate, UserUpdate
 from .dependencies import UoWDep
 
 router = APIRouter(prefix="/users", tags=["users"])

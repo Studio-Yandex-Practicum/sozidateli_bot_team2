@@ -1,8 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
-from src.api import routers
-from src.core import Settings
-from src.infrastructure.admin import admin
+from app.api import routers
+from app.core import Settings
+from app.infrastructure.admin import admin
 
 
 def create_app() -> FastAPI:

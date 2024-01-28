@@ -1,10 +1,10 @@
 import datetime as dt
+
 from fastapi import Request
-from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.domain.schemas import GetMeeting
-from src.infrastructure.db import Base
+from app.domain.schemas import GetMeeting
+from app.infrastructure.db import Base
 
 DATE_FORMAT = "%d.%m.%Y %H:%M"
 

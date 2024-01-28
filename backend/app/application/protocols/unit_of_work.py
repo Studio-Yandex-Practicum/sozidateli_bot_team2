@@ -3,7 +3,7 @@ from typing import Type
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from src.application.repositories import MeetingRepository, UserRepository
+from app.application.repositories import MeetingRepository, UserRepository
 
 
 class UoW(ABC):
