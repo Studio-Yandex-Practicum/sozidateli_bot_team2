@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AssistanceSegment(Enum):
+class AssistanceSegment(StrEnum):
     children_in_hospital = "Детям в больницах"
     children_in_orphanages = "Детям в детских домах"
     disabled_children = "Семьям с детьми-инвалидами"
