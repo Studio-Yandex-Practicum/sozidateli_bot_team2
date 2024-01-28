@@ -5,18 +5,17 @@ from starlette_admin.exceptions import FormValidationError, LoginFailed
 
 from src.core.settings import Settings
 
-
 users = Settings.users
 
 
 class UsernameAndPasswordProvider(AuthProvider):
     async def login(
-        self,
-        username: str,
-        password: str,
-        remember_me: bool,
-        request: Request,
-        response: Response,
+            self,
+            username: str,
+            password: str,
+            remember_me: bool,
+            request: Request,
+            response: Response,
     ) -> Response:
         if len(username) < 3:
             """Form data validation"""
