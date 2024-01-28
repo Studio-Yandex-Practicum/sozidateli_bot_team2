@@ -8,6 +8,7 @@ from src.application.repositories import MeetingRepository, UserRepository
 
 class UoW(ABC):
     users = Type[UserRepository]
+    meetings = Type[MeetingRepository]
 
     @abstractmethod
     async def __aenter__(self):
@@ -26,7 +27,7 @@ class UoW(ABC):
         ...
 
 
-class UnitOfWork:
+class UnitOfWork(UoW):
     def __init__(self, session_factory: async_sessionmaker) -> None:
         self.session_factory = session_factory
 
