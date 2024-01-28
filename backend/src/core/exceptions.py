@@ -1,14 +1,19 @@
 class ObjectIsNoneException(Exception):
-    """Запрос к БД вернул None."""
+    def __str__(self):
+        return ("Отсутствуют данные по данному id. "
+                "Проверьте правильность передачи данных в запросе.")
 
 
-class ObjectAlreadyExists(Exception):
-    """Запрос к БД вернул не пустое значение."""
+class UserAlreadyExists(Exception):
+    def __str__(self):
+        return """Пользователь уже существует!"""
 
 
 class InvalidDate(Exception):
-    """Дата в меньше текущей."""
+    def __str__(self):
+        return "Дата собрания не может быть меньше текущей."
 
 
 class MeetingClosed(Exception):
-    """Запись на собрание закрыта."""
+    def __str__(self):
+        return "Закрытое собрание нельзя редактировать/удалять."
