@@ -1,33 +1,36 @@
-from datetime import datetime
+import datetime as dt
 
 from pydantic import BaseModel, ConfigDict
 
 from .users import GetUser
 
 
-class MeetingCreate(BaseModel):
-    date: datetime
-    description: str
-
-
-class GetMeeting(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    date: datetime
-    is_open: bool
-    description: str
-
-
-class MeetingUpdate(BaseModel):
-    date: datetime | None = None
+class BaseMeeting(BaseModel):
+    date: dt.datetime | None = None
     is_open: bool | None = None
     description: str | None = None
 
 
+class MeetingCreate(BaseModel):
+    date: dt.datetime
+    description: str | None = None
+
+
+class GetMeeting(BaseMeeting):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    date: dt.datetime
+    is_open: bool
+
+
+class MeetingUpdate(BaseMeeting):
+    ...
+
+
 class MeetingParticipants(BaseModel):
     id: int
-    date: datetime
+    date: dt.datetime
     is_open: bool
     description: str
     users: list[GetUser]
