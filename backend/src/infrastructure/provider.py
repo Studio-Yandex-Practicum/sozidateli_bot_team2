@@ -6,14 +6,7 @@ from starlette_admin.exceptions import FormValidationError, LoginFailed
 from src.core.settings import Settings
 
 
-users = {
-    "admin": {
-        "name": "SuperAdmin",
-        # "avatar": "admin.png",
-        # "company_logo_url": "admin.png",
-        "roles": ["read", "create", "edit", "delete", "action_make_published"],
-    },
-}
+users = Settings.users
 
 
 class UsernameAndPasswordProvider(AuthProvider):
@@ -33,14 +26,12 @@ class UsernameAndPasswordProvider(AuthProvider):
         if username in users and password == Settings.admin_panel_password:
             request.session.update({"username": username})
             return response
-
         raise LoginFailed("Неправильные логин или пароль.")
 
     async def is_authenticated(self, request) -> bool:
         if request.session.get("username", None) in users:
             request.state.user = users.get(request.session["username"])
             return True
-
         return False
 
     def get_admin_config(self, request: Request) -> AdminConfig:

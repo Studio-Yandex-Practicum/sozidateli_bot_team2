@@ -8,11 +8,10 @@ from src.domain.schemas import GetUser, UserCreate, UserUpdate
 
 
 class UserService:
-    async def validate_user_exists(self, uow: UoW, search_params):
+    async def _validate_user_exists(
+        self, uow: UoW, search_params: dict
+    ) -> None:
         """Проверка уникальности пользователя."""
-        search_params = {
-            key: value for key, value in search_params if value is not None
-        }
         if not search_params:
             return
         async with uow:
@@ -20,21 +19,19 @@ class UserService:
         if user:
             raise ObjectAlreadyExists
 
-    async def validate_meeting_exists(self, uow: UoW, id: int):
+    async def _validate_meeting_exists(self, uow: UoW, id: int) -> None:
         """Проверка что собрание с таким id существует."""
-        async with uow:
-            meeting = await uow.meetings.find_one(id=id)
-            if not meeting:
-                raise ObjectIsNoneException
+        meeting = await uow.meetings.find_one(id=id)
+        if not meeting:
+            raise ObjectIsNoneException
 
-    async def validate_meeting_is_open(self, uow: UoW, id: int):
+    async def _validate_meeting_is_open(self, uow: UoW, id: int) -> None:
         """Проверка что запись на собрание открыта."""
-        async with uow:
-            meeting = await uow.meetings.find_one(id=id)
-            if not meeting.is_open:
-                raise MeetingClosed
+        meeting = await uow.meetings.find_one(id=id)
+        if not meeting.is_open:
+            raise MeetingClosed
 
-    async def get_users(self, uow: UoW):
+    async def get_users(self, uow: UoW) -> list[GetUser]:
         """Получить список пользователей."""
         async with uow:
             users = await uow.users.find_all()
@@ -48,17 +45,22 @@ class UserService:
 
     async def create_user(self, uow: UoW, schema: UserCreate) -> GetUser:
         """Создать пользователя."""
-        meeting_id = schema.meeting_id
-        await self.validate_meeting_exists(uow, meeting_id)
-        del schema.meeting_id
-        assistance_segment = schema.assistance_segment
-        del schema.assistance_segment
-        await self.validate_user_exists(uow, schema)
-        schema.meeting_id = meeting_id
-        schema.assistance_segment = assistance_segment
-        await self.validate_meeting_is_open(uow, meeting_id)
+        user_data = schema.model_dump(exclude_none=True)
+
+        meeting_id = user_data.pop("meeting_id", None)
         async with uow:
-            user = await uow.users.add_one(**schema.model_dump())
+            await self._validate_meeting_exists(uow, meeting_id)
+            await self._validate_meeting_is_open(uow, meeting_id)
+
+        assistance_segment = user_data.pop("assistance_segment", None)
+
+        await self._validate_user_exists(uow, user_data)
+
+        user_data["meeting_id"] = meeting_id
+        user_data["assistance_segment"] = assistance_segment
+
+        async with uow:
+            user = await uow.users.add_one(**user_data)
             await uow.commit()
             return user.to_read_model()
 
@@ -66,21 +68,27 @@ class UserService:
         self, uow: UoW, id: int, schema: UserUpdate
     ) -> GetUser:
         """Обновить инфо о пользователе."""
-        meeting_id = schema.meeting_id
-        del schema.meeting_id
-        if assistance_segment := schema.assistance_segment:
-            del schema.assistance_segment
-            await self.validate_user_exists(uow, schema)
-            schema.assistance_segment = assistance_segment
-        schema.meeting_id = meeting_id
+        user_data = schema.model_dump(exclude_none=True)
+
+        meeting_id = user_data.pop("meeting_id", None)
+        assistance_segment = user_data.pop("assistance_segment", None)
+
+        await self._validate_user_exists(uow, user_data)
+
+        if assistance_segment:
+            user_data["assistance_segment"] = assistance_segment
+
         if meeting_id:
             if meeting_id > 0:
-                await self.validate_meeting_exists(uow, meeting_id)
-                await self.validate_meeting_is_open(uow, meeting_id)
+                user_data["meeting_id"] = meeting_id
+                async with uow:
+                    await self._validate_meeting_exists(uow, meeting_id)
+                    await self._validate_meeting_is_open(uow, meeting_id)
             else:
                 raise ObjectIsNoneException
+
         async with uow:
-            user = await uow.users.update_one(id=id, **schema.model_dump())
+            user = await uow.users.update_one(id=id, **user_data)
             await uow.commit()
             return user.to_read_model()
 
