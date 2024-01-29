@@ -28,10 +28,10 @@ async def setup_bot_commands(bot: Bot):
     ]
     try:
         await bot.set_my_commands(main_menu_commands)
+        logger_1.info('Команды бота созданы')
     except Exception as e:
         logger_1.error(e)
         logger_2.error(e)
-
 
 
 async def main():
@@ -54,7 +54,7 @@ async def main():
                                                settings.throttle_time_other))
     try:
         dp.startup.register(setup_bot_commands)
-        logger_1.info('Команды бота созданы')
+        logger_1.info('Команды бота установлены')
     except Exception as e:
         logger_1.error(e)
         logger_2.error(e)
