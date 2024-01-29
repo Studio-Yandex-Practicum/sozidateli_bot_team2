@@ -2,27 +2,17 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram_forms import dispatcher
 from aiogram_forms.forms import Form, FormsManager, fields
 from core import settings
-from services import meetings, users
-from schemas import users as schemas_users
+from services import exceptions
 
-from .constants import (DOCUMENTS_FOR_INTERVIEW, INFO_ABOUT_USER_FOR_INTERVIEW,
+from .constants import (INFO_ABOUT_USER_FOR_INTERVIEW,
                         INFO_ABOUT_USER_FOR_MEETING,
-                        NAME_FIELD_TOO_SHORT_MESSAGE,
+                        NAME_FIELD_TOO_SHORT_MESSAGE, SHOW_DOCUMENTS,
                         SUCCESS_FILL_INTERVIEW_FORM, SUCCESS_FILL_MEETING_FORM,
-                        VOLUENTEERING_TYPE_QUESTION, VOLUNTEERING_TYPE)
+                        TRY_FILL_FORM_AGAIN, VOLUENTEERING_TYPE_QUESTION,
+                        VOLUNTEERING_TYPE)
+from .functions import register_user
 from .validation import (validate_email_format, validate_phone_number_format,
                          validate_volunteering_type_field)
-
-
-async def get_date_id():
-    meeting_service = meetings.MeetingService()
-    all_meetings = await meeting_service.get_meetings()
-    open_meeting = []
-    for meeting in all_meetings:
-        if meeting.is_open:
-            open_meeting.append((meeting.id, meeting.date))
-    open_meeting.sort(key=lambda a: a[1])
-    return open_meeting[0][0]
 
 
 @dispatcher.register('registration-for-meeting-form')
@@ -57,15 +47,21 @@ class RegistrationForMeetingForm(Form):
                 if registration_data['volunteering_type'] in item]
         )
 
-        user_service = users.UserService()
-        user = schemas_users.UserCreate(
-            name="Name",
-            phone='+79636344989',
-            email='julia@mail.com',
-            meeting_id=3
-        )
-        print(user)
-        await user_service.create_user(user)
+        try:
+            await register_user(
+                name=registration_data['name'],
+                phone=registration_data['phone'],
+                email=registration_data['email'],
+                assistance_segment=volunteering_type
+            )
+        except exceptions.HTTPRequestError as error:
+            await message.answer(
+                text=str(error),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            return await message.answer(
+                text=TRY_FILL_FORM_AGAIN
+            )
 
         await data['bot'].send_message(
             settings.manager_chat_id,
@@ -130,9 +126,7 @@ class RegistrationForInterviewForm(Form):
         await message.answer(
             text=SUCCESS_FILL_INTERVIEW_FORM.format(
                 name=registration_data['name']
-            )
-        )
-        await message.answer(
-            text=DOCUMENTS_FOR_INTERVIEW,
+            ),
             reply_markup=ReplyKeyboardRemove()
         )
+        await message.answer(text=SHOW_DOCUMENTS)

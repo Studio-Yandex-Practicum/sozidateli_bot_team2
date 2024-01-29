@@ -1,4 +1,3 @@
-from .assistance import AssistanceSegment
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -17,7 +16,7 @@ class UserCreate(BaseModel):
     phone: str
     email: EmailStr
     meeting_id: int
-    assistance_segment: AssistanceSegment | None = "not_decide"
+    assistance_segment: str
 
 
 class UserUpdate(BaseModel):
