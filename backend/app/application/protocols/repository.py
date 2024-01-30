@@ -10,28 +10,31 @@ ModelType = TypeVar("ModelType", bound=Base)
 
 
 class AbstractRepository(ABC):
+    """Абстрактный класс репозитория."""
+
     @abstractmethod
     async def add_one(self):
-        ...
+        """Добавление данных."""
 
     @abstractmethod
     async def update_one(self, id: int):
-        ...
+        """Обновление данных."""
 
     @abstractmethod
     async def find_one(self):
-        ...
+        """Поиск элемента."""
 
     @abstractmethod
     async def find_all(self):
-        ...
+        """Поиск элементов."""
 
     @abstractmethod
     async def delete_one(self):
-        ...
+        """Удаление элемента."""
 
 
 class SQLAlchemyRepository(AbstractRepository):
+    """Класс репозитория для SQLAlchemy."""
     model: ModelType | None = None
 
     def __init__(self, session: AsyncSession) -> None:

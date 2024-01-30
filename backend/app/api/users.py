@@ -26,6 +26,7 @@ async def get_users(uow: UoWDep):
 
 @router.get("/{id}", response_model=GetUser)
 async def get_user(id: int, uow: UoWDep):
+    """Получение пользователя."""
     try:
         return await UserService().get_user(uow, id)
     except AttributeError:

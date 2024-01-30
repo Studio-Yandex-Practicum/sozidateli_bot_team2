@@ -85,6 +85,7 @@ async def delete_meeting(uow: UoWDep, id: int):
     summary="Список записавшихся на собрание.",
 )
 async def get_participants_list(uow: UoWDep, id: int):
+    """Получение списка записавшихся на собрание."""
     try:
         return await MeetingServices().get_participants(uow, id)
     except ObjectIsNoneException() as error:
@@ -92,3 +93,8 @@ async def get_participants_list(uow: UoWDep, id: int):
             status_code=HTTPStatus.BAD_REQUEST,
             detail=str(error),
         )
+
+@router.get("/close/")
+async def close_meetings(uow: UoWDep) -> None:
+    """Закрытие собраний."""
+    await MeetingServices().close_meeting(uow)

@@ -6,8 +6,9 @@ from app.core.constants import NUMBER_PATTERN
 from app.domain.models.enums import AssistanceSegment
 
 
-
 class BaseUser(BaseModel):
+    """Базовая схема пользователя."""
+
     name: str
     phone: str
     email: EmailStr
@@ -15,6 +16,8 @@ class BaseUser(BaseModel):
 
 
 class GetUser(BaseUser):
+    """Схема получения пользователя."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -22,6 +25,8 @@ class GetUser(BaseUser):
 
 
 class UserCreate(BaseUser):
+    """Схема создания пользователя."""
+
     name: str = Field(..., min_length=1, max_length=255)
     phone: str
     assistance_segment: AssistanceSegment
@@ -37,6 +42,8 @@ class UserCreate(BaseUser):
 
 
 class UserUpdate(UserCreate):
+    """Схема обновления пользователя."""
+
     name: str | None = None
     phone: str | None = None
     email: EmailStr | None = None
