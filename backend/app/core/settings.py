@@ -18,6 +18,9 @@ class Settings:
     admin_middleware_secret = os.getenv(
         "ADMIN_MIDDLEWARE_SECRET", "1234567890"
     )
+    secret = os.getenv("SECRET", "thesecretkey")
+    first_superuser_email = os.getenv("FIRST_SUPERUSER_EMAIL")
+    first_superuser_password = os.getenv("FIRST_SUPERUSER_PASSWORD")
     users = {
         "admin": {
             "name": "SuperAdmin",

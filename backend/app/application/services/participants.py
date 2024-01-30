@@ -1,23 +1,30 @@
 from app.application.protocols.unit_of_work import UoW
-from app.core.exceptions import UserAlreadyExists, ObjectIsNoneException
-from app.domain.schemas import GetUser, UserCreate, UserUpdate
+from app.core.exceptions import ObjectIsNoneException, UserAlreadyExists
+from app.domain.schemas import (
+    GetParticipant,
+    ParticipantCreate,
+    ParticipantUpdate,
+)
+
 from .base import BaseService
 
 
-class UserService(BaseService):
-    async def get_users(self, uow: UoW) -> list[GetUser]:
+class ParticipantService(BaseService):
+    async def get_users(self, uow: UoW) -> list[GetParticipant]:
         """Получить список пользователей."""
         async with uow:
             users = await uow.users.find_all()
             return [user.to_read_model() for user in users]
 
-    async def get_user(self, uow: UoW, id: int) -> GetUser:
+    async def get_user(self, uow: UoW, id: int) -> GetParticipant:
         """Получить пользователя по id."""
         async with uow:
             user = await uow.users.find_one(id=id)
             return user.to_read_model()
 
-    async def create_user(self, uow: UoW, schema: UserCreate) -> GetUser:
+    async def create_user(
+        self, uow: UoW, schema: ParticipantCreate
+    ) -> GetParticipant:
         """Создать пользователя."""
         async with uow:
             await self._validate_user_exists(uow, schema.phone)
@@ -27,8 +34,8 @@ class UserService(BaseService):
             return user.to_read_model()
 
     async def update_user(
-            self, uow: UoW, id: int, schema: UserUpdate
-    ) -> GetUser:
+        self, uow: UoW, id: int, schema: ParticipantUpdate
+    ) -> GetParticipant:
         """Обновить информацию о пользователе."""
         async with uow:
             await self._validate_user_exists(uow, schema.phone)
@@ -40,7 +47,7 @@ class UserService(BaseService):
             await uow.commit()
             return user.to_read_model()
 
-    async def delete_user(self, uow: UoW, id: int) -> GetUser:
+    async def delete_user(self, uow: UoW, id: int) -> GetParticipant:
         """Удалить пользователя."""
         async with uow:
             await self._check_user(uow, id)
@@ -49,7 +56,7 @@ class UserService(BaseService):
             return user.to_read_model()
 
     async def _validate_user_exists(
-            self, uow: UoW, phone: str | None = None
+        self, uow: UoW, phone: str | None = None
     ) -> None:
         """Проверка уникальности пользователя."""
         if phone and await uow.users.find_one(phone=phone):

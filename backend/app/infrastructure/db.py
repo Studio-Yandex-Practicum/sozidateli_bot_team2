@@ -1,3 +1,4 @@
+from app.core import settings
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import (
     Mapped,
@@ -6,7 +7,6 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
-from app.core import settings
 
 engine = create_async_engine(url=settings.db_url, echo=False)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)

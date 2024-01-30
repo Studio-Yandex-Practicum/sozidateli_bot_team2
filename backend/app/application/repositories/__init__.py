@@ -1,2 +1,2 @@
 from .meetings import MeetingRepository  # noqa
-from .users import UserRepository  # noqa
+from .participants import ParticipantRepository  # noqa

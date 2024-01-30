@@ -4,4 +4,9 @@ from .meetings import (  # noqa
     MeetingParticipants,
     MeetingUpdate,
 )
-from .users import GetUser, UserCreate, UserUpdate  # noqa
+from .participants import (  # noqa
+    GetParticipant,
+    ParticipantCreate,
+    ParticipantUpdate,
+)
+from .users import UserCreate, UserRead, UserUpdate  # noqa

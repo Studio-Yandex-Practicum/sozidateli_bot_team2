@@ -1,2 +1,2 @@
-from app.domain.models import User  # noqa
+from app.domain.models import Meeting, Participant, User  # noqa
 from app.infrastructure.db import Base  # noqa

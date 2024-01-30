@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import Type
 
+from app.application.repositories import (
+    MeetingRepository,
+    ParticipantRepository,
+)
 from sqlalchemy.ext.asyncio import async_sessionmaker
-
-from app.application.repositories import MeetingRepository, UserRepository
 
 
 class UoW(ABC):
-    users = Type[UserRepository]
+    users = Type[ParticipantRepository]
     meetings = Type[MeetingRepository]
 
     @abstractmethod
@@ -34,7 +36,7 @@ class UnitOfWork(UoW):
     async def __aenter__(self):
         self.session = self.session_factory()
 
-        self.users = UserRepository(self.session)
+        self.users = ParticipantRepository(self.session)
         self.meetings = MeetingRepository(self.session)
 
     async def __aexit__(self, *args):

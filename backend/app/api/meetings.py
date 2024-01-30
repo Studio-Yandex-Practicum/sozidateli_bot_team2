@@ -1,33 +1,43 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException
-
 from app.application.services import MeetingServices
 from app.core.exceptions import (
     InvalidDate,
     MeetingClosed,
     ObjectIsNoneException,
 )
+from app.core.users import current_superuser, current_user
 from app.domain.schemas import (
     GetMeeting,
     MeetingCreate,
     MeetingParticipants,
     MeetingUpdate,
 )
+from fastapi import APIRouter, Depends, HTTPException
+
 from .dependencies import UoWDep
+
 
 router = APIRouter(prefix="/meetings", tags=["meetings"])
 
 
 @router.get(
-    "/", response_model=list[GetMeeting], summary="Получить список собраний."
+    "/",
+    response_model=list[GetMeeting],
+    summary="Получить список собраний.",
+    dependencies=[Depends(current_superuser)],
 )
 async def get_meetings(uow: UoWDep):
     """Получение списка всех собраний."""
     return await MeetingServices().get_meetings(uow)
 
 
-@router.get("/{id}", response_model=GetMeeting, summary="Получить собрание.")
+@router.get(
+    "/{id}",
+    response_model=GetMeeting,
+    summary="Получить собрание по id.",
+    dependencies=[Depends(current_superuser)],
+)
 async def get_meeting(id: int, uow: UoWDep):
     """Получить собрание."""
     try:
@@ -35,11 +45,16 @@ async def get_meeting(id: int, uow: UoWDep):
     except AttributeError:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=f"Собрание с id = {id} отсутствует."
+            detail=f"Собрание с id = {id} отсутствует.",
         )
 
 
-@router.post("/", response_model=GetMeeting, summary="Создание собрания.")
+@router.post(
+    "/",
+    response_model=GetMeeting,
+    summary="Создание собрания.",
+    dependencies=[Depends(current_superuser)],
+)
 async def create_meeting(uow: UoWDep, meeting: MeetingCreate):
     """Создать собрание."""
     try:
@@ -52,7 +67,10 @@ async def create_meeting(uow: UoWDep, meeting: MeetingCreate):
 
 
 @router.patch(
-    "/{id}", response_model=GetMeeting, summary="Редактирование собрания."
+    "/{id}",
+    response_model=GetMeeting,
+    summary="Редактирование собрания.",
+    dependencies=[Depends(current_superuser)],
 )
 async def update_meeting(uow: UoWDep, id: int, meeting: MeetingUpdate):
     """Обновление собрания."""
@@ -66,7 +84,10 @@ async def update_meeting(uow: UoWDep, id: int, meeting: MeetingUpdate):
 
 
 @router.delete(
-    "/{id}", response_model=GetMeeting, summary="Удалить собрание."
+    "/{id}",
+    response_model=GetMeeting,
+    summary="Удалить собрание.",
+    dependencies=[Depends(current_superuser)],
 )
 async def delete_meeting(uow: UoWDep, id: int):
     """Удалить собрание с указанным id."""
@@ -83,6 +104,7 @@ async def delete_meeting(uow: UoWDep, id: int):
     "/{id}/participants",
     response_model=MeetingParticipants,
     summary="Список записавшихся на собрание.",
+    dependencies=[Depends(current_superuser)],
 )
 async def get_participants_list(uow: UoWDep, id: int):
     try:

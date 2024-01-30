@@ -1,11 +1,11 @@
-from typing import TypeVar, Any
-
-from pydantic import BaseModel
+from typing import Any, TypeVar
 
 from app.application.protocols.unit_of_work import UoW
-from app.core.exceptions import ObjectIsNoneException, MeetingClosed
+from app.core.exceptions import MeetingClosed, ObjectIsNoneException
+from pydantic import BaseModel
 
-ModelType = TypeVar('ModelType', bound=BaseModel)
+
+ModelType = TypeVar("ModelType", bound=BaseModel)
 
 
 class BaseService:

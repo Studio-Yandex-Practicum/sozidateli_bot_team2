@@ -4,10 +4,14 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install gunicorn
-RUN pip install -r requirements.txt --no-cache-dir
+RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/* \
+    && pip install gunicorn \
+    && pip install -r requirements.txt --no-cache-dir
 
 COPY app ./app
+COPY src ./src
+COPY alembic.ini alembic.ini
+COPY alembic ./alembic
 COPY --chmod=0755 scripts/create_migrations.sh /usr/local/bin/
 
 ENTRYPOINT ["/usr/local/bin/create_migrations.sh"]

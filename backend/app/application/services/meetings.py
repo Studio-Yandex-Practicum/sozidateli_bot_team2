@@ -3,16 +3,14 @@ from zoneinfo import ZoneInfo
 
 from app.application.protocols.unit_of_work import UoW
 from app.core.constants import DATE_FORMAT, ZONEINFO
-from app.core.exceptions import (
-    InvalidDate,
-    ObjectIsNoneException,
-)
+from app.core.exceptions import InvalidDate, ObjectIsNoneException
 from app.domain.schemas import (
     GetMeeting,
     MeetingCreate,
     MeetingParticipants,
     MeetingUpdate,
 )
+
 from .base import BaseService
 
 
@@ -30,7 +28,7 @@ class MeetingServices(BaseService):
             return meeting.to_read_model()
 
     async def create_meeting(
-            self, uow: UoW, schema: MeetingCreate
+        self, uow: UoW, schema: MeetingCreate
     ) -> GetMeeting:
         """Создать собрание."""
         self._validate_meeting_date(schema.date)
@@ -40,7 +38,7 @@ class MeetingServices(BaseService):
             return meeting.to_read_model()
 
     async def update_meeting(
-            self, uow: UoW, id: int, schema: MeetingUpdate
+        self, uow: UoW, id: int, schema: MeetingUpdate
     ) -> GetMeeting:
         """Обновить информацию о собрании."""
         if schema.date:
@@ -78,6 +76,6 @@ class MeetingServices(BaseService):
 
     def _validate_meeting_date(self, date) -> None:
         if date.strftime(DATE_FORMAT) < dt.datetime.now(
-                tz=ZoneInfo(ZONEINFO)
+            tz=ZoneInfo(ZONEINFO)
         ).strftime(DATE_FORMAT):
             raise InvalidDate()

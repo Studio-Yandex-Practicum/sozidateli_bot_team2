@@ -1,21 +1,21 @@
+from app.core.settings import Settings
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette_admin.auth import AdminConfig, AdminUser, AuthProvider
 from starlette_admin.exceptions import FormValidationError, LoginFailed
 
-from app.core.settings import Settings
 
 users = Settings.users
 
 
 class UsernameAndPasswordProvider(AuthProvider):
     async def login(
-            self,
-            username: str,
-            password: str,
-            remember_me: bool,
-            request: Request,
-            response: Response,
+        self,
+        username: str,
+        password: str,
+        remember_me: bool,
+        request: Request,
+        response: Response,
     ) -> Response:
         if len(username) < 3:
             """Form data validation"""

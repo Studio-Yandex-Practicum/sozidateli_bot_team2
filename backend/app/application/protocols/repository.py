@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Any, Sequence, TypeVar
 
+from app.infrastructure.db import Base
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.db import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -43,19 +43,18 @@ class SQLAlchemyRepository(AbstractRepository):
         result = await self.session.execute(stmt)
         return result.scalar_one()
 
-    async def update_one(
-            self, id: int, **kwargs: dict[str, Any]
-    ) -> ModelType:
+    async def update_one(self, id: int, **kwargs: dict[str, Any]) -> ModelType:
         """Обновление данных в БД."""
-        stmt = update(
-            self.model
-        ).values(**kwargs).filter_by(id=id).returning(self.model)
+        stmt = (
+            update(self.model)
+            .values(**kwargs)
+            .filter_by(id=id)
+            .returning(self.model)
+        )
         result = await self.session.execute(stmt)
         return result.scalar_one()
 
-    async def find_one(
-            self, **filter_by: dict[str, Any]
-    ) -> ModelType | None:
+    async def find_one(self, **filter_by: dict[str, Any]) -> ModelType | None:
         """Поиск записи в БД."""
         stmt = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(stmt)
@@ -69,8 +68,6 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def delete_one(self, **filter_by: dict[str, Any]) -> ModelType:
         """Удаление записи в БД."""
-        stmt = delete(
-            self.model
-        ).filter_by(**filter_by).returning(self.model)
+        stmt = delete(self.model).filter_by(**filter_by).returning(self.model)
         result = await self.session.execute(stmt)
         return result.scalar_one()

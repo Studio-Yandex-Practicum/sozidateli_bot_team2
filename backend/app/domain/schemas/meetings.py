@@ -2,7 +2,7 @@ import datetime as dt
 
 from pydantic import BaseModel, ConfigDict
 
-from .users import GetUser
+from .participants import GetParticipant
 
 
 class BaseMeeting(BaseModel):
@@ -33,4 +33,4 @@ class MeetingParticipants(BaseModel):
     date: dt.datetime
     is_open: bool
     description: str
-    users: list[GetUser]
+    users: list[GetParticipant]

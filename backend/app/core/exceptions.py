@@ -1,7 +1,9 @@
 class ObjectIsNoneException(Exception):
     def __str__(self):
-        return ("Отсутствуют данные по данному id. "
-                "Проверьте правильность передачи данных в запросе.")
+        return (
+            "Отсутствуют данные по данному id. "
+            "Проверьте правильность передачи данных в запросе."
+        )
 
 
 class UserAlreadyExists(Exception):

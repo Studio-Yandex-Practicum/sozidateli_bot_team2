@@ -3,6 +3,12 @@ from dataclasses import dataclass
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from app.application.repositories.participants import ParticipantRepository
+from app.core import Settings as settings
+from app.core.constants import DATE_FORMAT, ZONEINFO
+from app.domain.models import Meeting, Participant
+from app.domain.models.enums import AssistanceSegment
+from app.domain.schemas import MeetingCreate, ParticipantCreate
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
@@ -22,12 +28,6 @@ from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 from starlette_admin.i18n import I18nConfig
 
-from app.application.repositories.users import UserRepository
-from app.core import Settings as settings
-from app.core.constants import DATE_FORMAT, ZONEINFO
-from app.domain.models import Meeting, User
-from app.domain.models.enums import AssistanceSegment
-from app.domain.schemas import MeetingCreate, UserCreate
 from .db import engine
 from .provider import UsernameAndPasswordProvider
 
@@ -41,10 +41,10 @@ class EnumCustomField(EnumField):
         raise ValueError(f"Invalid choice value: {value}")
 
 
-class UserView(ModelView):
+class ParicipantView(ModelView):
     """Модель отображения пользователя в админке."""
 
-    identity = "user"
+    identity = "participant"
 
     fields = [
         StringField("name", label="Имя", required=True),
@@ -53,17 +53,19 @@ class UserView(ModelView):
         EnumCustomField(
             "assistance_segment",
             label="Направление помощи",
-            choices=[("children_in_hospital", "Детям в больницах"),
-                     ("children_in_orphanages", "Детям в детских домах"),
-                     ("disabled_children", "Семьям с детьми-инвалидами"),
-                     ("auto_volunteer", "Могу автоволонтерить"),
-                     ("not_decide", "Еще не определился")],
-            required=True
+            choices=[
+                ("children_in_hospital", "Детям в больницах"),
+                ("children_in_orphanages", "Детям в детских домах"),
+                ("disabled_children", "Семьям с детьми-инвалидами"),
+                ("auto_volunteer", "Могу автоволонтерить"),
+                ("not_decide", "Еще не определился"),
+            ],
+            required=True,
         ),
         HasOne("meeting", label="Собрание", identity="meeting", required=True),
     ]
     label = "Участники"
-    sortable_fields = [User.meeting]
+    sortable_fields = [Participant.meeting]
 
     async def validate(self, request: Request, data: dict[str, Any]) -> None:
         errors: dict[str, str] = dict()
@@ -95,15 +97,15 @@ class UserView(ModelView):
         )
 
     async def _validate_create(
-            self, request: Request,
-            data: dict[str, Any],
-            errors: dict[str, str]
+        self, request: Request, data: dict[str, Any], errors: dict[str, str]
     ):
-        user_attrs = {"email": "Пользователя с данной почтой уже существует.",
-                      "phone": "Пользователь с данным телефоном уже существует."}
+        user_attrs = {
+            "email": "Пользователя с данной почтой уже существует.",
+            "phone": "Пользователь с данным телефоном уже существует.",
+        }
         for key, value in user_attrs.items():
-            if await UserRepository(
-                    request.state.session
+            if await ParticipantRepository(
+                request.state.session
             ).check_user_exists(**{key: data[key]}):
                 errors[key] = value
 
@@ -117,7 +119,9 @@ class MeetingView(ModelView):
         DateTimeField("date", label="Дата и время"),
         BooleanField("is_open", label="Закрыто/Открыто"),
         TextAreaField("description", label="Описание собрания"),
-        HasMany("users", label="Участники собрания", identity="user"),
+        HasMany(
+            "participants", label="Участники собрания", identity="participant"
+        ),
     ]
     label = "Собрания"
     sortable_fields = ["date", "is_open"]
@@ -129,7 +133,7 @@ class MeetingView(ModelView):
         if data["date"] is None:
             errors["date"] = "Нужно указать дату собрания."
         if data["date"] and data["date"].strftime(
-                DATE_FORMAT
+            DATE_FORMAT
         ) < dt.datetime.now(tz=ZoneInfo(ZONEINFO)).strftime(DATE_FORMAT):
             errors["date"] = "Дата собрания не может быть меньше текущей."
         if len(errors) > 0:
@@ -150,7 +154,11 @@ admin = Admin(
     auth_provider=UsernameAndPasswordProvider(),
 )
 
-admin.add_view(UserView(User, pydantic_model=UserCreate, icon="fa fa-user"))
+admin.add_view(
+    ParicipantView(
+        Participant, pydantic_model=ParticipantCreate, icon="fa fa-user"
+    )
+)
 
 admin.add_view(
     MeetingView(Meeting, pydantic_model=MeetingCreate, icon="fa fa-calendar")
