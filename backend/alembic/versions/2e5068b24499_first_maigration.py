@@ -24,7 +24,7 @@ def upgrade() -> None:
         "meeting",
         sa.Column("date", sa.DateTime(), nullable=False),
         sa.Column("is_open", sa.Boolean(), nullable=False),
-        sa.Column("description", sa.String(), nullable=False),
+        sa.Column("description", sa.String(), nullable=True),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
