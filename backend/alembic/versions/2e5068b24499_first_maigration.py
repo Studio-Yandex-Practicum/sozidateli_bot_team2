@@ -1,7 +1,7 @@
 """first maigration
 
 Revision ID: 2e5068b24499
-Revises: 
+Revises:
 Create Date: 2024-01-24 09:49:57.440908
 
 """
