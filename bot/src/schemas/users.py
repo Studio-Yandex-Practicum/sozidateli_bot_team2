@@ -16,6 +16,7 @@ class UserCreate(BaseModel):
     phone: str
     email: EmailStr
     meeting_id: int
+    assistance_segment: str
 
 
 class UserUpdate(BaseModel):

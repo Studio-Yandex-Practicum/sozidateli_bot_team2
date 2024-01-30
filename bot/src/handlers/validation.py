@@ -1,29 +1,24 @@
 import re
 
 from aiogram_forms.errors import ValidationError
+from email_validator import EmailNotValidError, validate_email
 
 from .constants import (INVALID_EMAIL_MESSAGE, INVALID_PHONE_NUMBER_MESSAGE,
-                        INVALID_VOLUNTEERING_TYPE_MESSAGE, VOLUNTEERING_TYPE)
+                        INVALID_VOLUNTEERING_TYPE_MESSAGE, NUMBER_PATTERN,
+                        VOLUNTEERING_TYPE)
 
 
 def validate_email_format(value: str):
-    """Email validator.
-
-    Exactly one "@" sign and at least one "." in the part after the @.
-    """
-    regex = re.compile(r'[^@]+@[^@]+\.[^@]+')
-    match = regex.match(value)
-    if not match:
+    """Email validator."""
+    try:
+        validate_email(value, check_deliverability=False)
+    except EmailNotValidError:
         raise ValidationError(INVALID_EMAIL_MESSAGE, code='email')
 
 
 def validate_phone_number_format(value: str):
     """Phone number validator."""
-    regex = re.compile(
-        r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'
-    )
-    match = regex.match(value)
-    if not match:
+    if not re.match(NUMBER_PATTERN, value):
         raise ValidationError(
             INVALID_PHONE_NUMBER_MESSAGE, code='phone_number'
         )

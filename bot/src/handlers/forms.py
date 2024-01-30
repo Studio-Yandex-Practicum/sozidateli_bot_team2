@@ -2,12 +2,15 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram_forms import dispatcher
 from aiogram_forms.forms import Form, FormsManager, fields
 from core import settings
+from services import exceptions
 
-from .constants import (DOCUMENTS_FOR_INTERVIEW, INFO_ABOUT_USER_FOR_INTERVIEW,
+from .constants import (INFO_ABOUT_USER_FOR_INTERVIEW,
                         INFO_ABOUT_USER_FOR_MEETING,
-                        NAME_FIELD_TOO_SHORT_MESSAGE,
+                        NAME_FIELD_TOO_SHORT_MESSAGE, SHOW_DOCUMENTS,
                         SUCCESS_FILL_INTERVIEW_FORM, SUCCESS_FILL_MEETING_FORM,
-                        VOLUENTEERING_TYPE_QUESTION, VOLUNTEERING_TYPE)
+                        TRY_FILL_FORM_AGAIN, VOLUENTEERING_TYPE_QUESTION,
+                        VOLUNTEERING_TYPE)
+from .functions import register_user
 from .validation import (validate_email_format, validate_phone_number_format,
                          validate_volunteering_type_field)
 
@@ -43,6 +46,22 @@ class RegistrationForMeetingForm(Form):
             [item[0] for item in VOLUNTEERING_TYPE
                 if registration_data['volunteering_type'] in item]
         )
+
+        try:
+            await register_user(
+                name=registration_data['name'],
+                phone=registration_data['phone'],
+                email=registration_data['email'],
+                assistance_segment=volunteering_type
+            )
+        except exceptions.HTTPRequestError as error:
+            await message.answer(
+                text=str(error),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            return await message.answer(
+                text=TRY_FILL_FORM_AGAIN
+            )
 
         await data['bot'].send_message(
             settings.manager_chat_id,
@@ -107,9 +126,7 @@ class RegistrationForInterviewForm(Form):
         await message.answer(
             text=SUCCESS_FILL_INTERVIEW_FORM.format(
                 name=registration_data['name']
-            )
-        )
-        await message.answer(
-            text=DOCUMENTS_FOR_INTERVIEW,
+            ),
             reply_markup=ReplyKeyboardRemove()
         )
+        await message.answer(text=SHOW_DOCUMENTS)
