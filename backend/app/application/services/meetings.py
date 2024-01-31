@@ -18,7 +18,9 @@ class MeetingServices(BaseService):
         """Получить список собраний."""
         async with uow:
             meetings = await uow.meetings.find_all()
-            return [meeting.to_read_model() for meeting in meetings]
+            return [
+                meeting.to_read_model() for meeting in meetings if meeting.is_open
+            ]
 
     async def get_meeting(self, uow: UoW, id: int) -> GetMeeting:
         """Получить собрание по id."""
