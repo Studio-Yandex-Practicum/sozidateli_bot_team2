@@ -16,7 +16,10 @@ class User(Base):
     assistance_segment: Mapped[AssistanceSegment] = mapped_column(
         Enum(AssistanceSegment), default=AssistanceSegment.not_decide
     )
-    meeting_id: Mapped[int] = mapped_column(ForeignKey("meeting.id"))
+    meeting_id: Mapped[int] = mapped_column(
+        ForeignKey("meeting.id", ondelete='cascade'),
+        nullable=True
+    )
     meeting = relationship("Meeting", back_populates="users")
 
     async def __admin_repr__(self, _: Request):
