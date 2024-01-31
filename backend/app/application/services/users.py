@@ -59,8 +59,8 @@ class UserService(BaseService):
             meeting_id: int | None = None
     ) -> None:
         """Проверка уникальности пользователя."""
-        if not meeting_id and not phone:
-            user = uow.users.find_one(phone=phone)
+        if meeting_id and phone:
+            user = await uow.users.find_one(phone=phone)
             if user and user.meeting_id == meeting_id:
                 raise UserAlreadyExists()
 
