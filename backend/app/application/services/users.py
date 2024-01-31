@@ -21,7 +21,7 @@ class UserService(BaseService):
         """Создать пользователя."""
         async with uow:
             await self._validate_user_exists(
-                uow, schema.phone, schema.meeting_id
+                uow, schema.phone, schema.meeting_id, schema.email
             )
             await self._check_meeting(schema.meeting_id, uow)
             user = await uow.users.add_one(**schema.model_dump())
@@ -56,13 +56,17 @@ class UserService(BaseService):
             self,
             uow: UoW,
             phone: str | None = None,
-            meeting_id: int | None = None
+            meeting_id: int | None = None,
+            email: str | None = None
     ) -> None:
         """Проверка уникальности пользователя."""
-        if meeting_id and phone:
-            user = await uow.users.find_one(phone=phone)
-            if user and user.meeting_id == meeting_id:
-                raise UserAlreadyExists()
+        if meeting_id and phone and email:
+            values = {'email': email,
+                      'phone': phone}
+            for key, value in values.items():
+                user = await uow.users.find_one({key: value})
+                if user and user.meeting_id == meeting_id:
+                    raise UserAlreadyExists()
 
     async def _check_user(self, uow: UoW, id: int) -> None:
         if not await uow.users.find_one(id=id):
