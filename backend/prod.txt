@@ -1,0 +1,11 @@
+alembic==1.13.1
+fastapi==0.109.0
+pydantic==2.5.3
+passlib==1.7.4
+asyncpg==0.29.0
+starlette-admin==0.13.1
+uvicorn==0.25.0
+httpx==0.26.0
+itsdangerous==2.1.2
+email-validator==2.1.0.post1
+Babel==2.14.0
