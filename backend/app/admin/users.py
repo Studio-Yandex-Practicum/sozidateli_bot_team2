@@ -69,7 +69,10 @@ class UserView(ModelView):
         if data["email"] is None:
             errors["email"] = "Нужно укзать почту."
 
-        data["meeting_id"] = data["meeting"].id
+        try:
+            data["meeting_id"] = data["meeting"].id
+        except AttributeError:
+            data["meeting_id"] = None
 
         if request.state.action == "CREATE":
             await self._validate_create(request, data, errors)
