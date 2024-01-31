@@ -117,7 +117,7 @@ async def command_meeting_schedule(message: Message) -> None:
             )
         await message.answer(
             MEETING_INVITATION_MESSAGE.format(
-                date=date[0].strftime(DATE_FORMAT)
+                date=open_meetings[0][1].strftime(DATE_FORMAT)
             ),
             reply_markup=get_invitation_keyboard(
                 GO_TO_MEETING, REFUSE_MEETING
