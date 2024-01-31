@@ -64,7 +64,7 @@ class UserService(BaseService):
             values = {'email': email,
                       'phone': phone}
             for key, value in values.items():
-                user = await uow.users.find_one({key: value})
+                user = await uow.users.find_one(**{key: value})
                 if user and user.meeting_id == meeting_id:
                     raise UserAlreadyExists()
 
