@@ -2,10 +2,10 @@ FROM python:3.11
 
 WORKDIR /app
 
-COPY prod.txt .
+COPY prod.txt requirements.txt
 
 RUN pip install gunicorn
-RUN pip install -r prod.txt --no-cache-dir
+RUN pip install -r requirements.txt --no-cache-dir
 
 COPY app ./app
 COPY alembic.ini alembic.ini
