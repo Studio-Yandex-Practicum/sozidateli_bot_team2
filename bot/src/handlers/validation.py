@@ -18,9 +18,6 @@ def validate_email_format(value: str):
 
 def validate_phone_number_format(value: str):
     """Phone number validator."""
-    symbols = (' ', '(', ')')
-    for symbol in symbols:
-        value = value.replace(symbol, '')
     if not re.match(NUMBER_PATTERN, value):
         raise ValidationError(
             INVALID_PHONE_NUMBER_MESSAGE, code='phone_number'
