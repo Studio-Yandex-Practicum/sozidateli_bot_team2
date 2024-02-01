@@ -11,12 +11,15 @@ class User(Base):
     """Модель пользователя."""
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    phone: Mapped[str] = mapped_column(unique=True)
-    email: Mapped[str] = mapped_column(unique=True, nullable=False)
+    phone: Mapped[str] = mapped_column(unique=False)
+    email: Mapped[str] = mapped_column(nullable=False, unique=False)
     assistance_segment: Mapped[AssistanceSegment] = mapped_column(
         Enum(AssistanceSegment), default=AssistanceSegment.not_decide
     )
-    meeting_id: Mapped[int] = mapped_column(ForeignKey("meeting.id"))
+    meeting_id: Mapped[int] = mapped_column(
+        ForeignKey("meeting.id", ondelete='cascade'),
+        nullable=True
+    )
     meeting = relationship("Meeting", back_populates="users")
 
     async def __admin_repr__(self, _: Request):

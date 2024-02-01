@@ -3,12 +3,18 @@ from typing import Type
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.application.repositories import MeetingRepository, UserRepository
+from app.application.repositories import (MeetingRepository,
+                                          UserRepository,
+                                          RoleRepository,
+                                          AdministrationRepository)
 
 
 class UoW(ABC):
+    """Абстрактный класс паттерна UnitOfWork."""
     users = Type[UserRepository]
     meetings = Type[MeetingRepository]
+    roles = Type[RoleRepository]
+    administrations = Type[AdministrationRepository]
 
     @abstractmethod
     async def __aenter__(self):
@@ -36,6 +42,8 @@ class UnitOfWork(UoW):
 
         self.users = UserRepository(self.session)
         self.meetings = MeetingRepository(self.session)
+        self.roles = RoleRepository(self.session)
+        self.administrations = AdministrationRepository(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()

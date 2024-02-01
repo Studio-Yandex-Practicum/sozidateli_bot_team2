@@ -20,7 +20,9 @@ class UserService(BaseService):
     async def create_user(self, uow: UoW, schema: UserCreate) -> GetUser:
         """Создать пользователя."""
         async with uow:
-            await self._validate_user_exists(uow, schema.phone)
+            await self._validate_user_exists(
+                uow, schema.phone, schema.meeting_id, schema.email
+            )
             await self._check_meeting(schema.meeting_id, uow)
             user = await uow.users.add_one(**schema.model_dump())
             await uow.commit()
@@ -31,7 +33,9 @@ class UserService(BaseService):
     ) -> GetUser:
         """Обновить информацию о пользователе."""
         async with uow:
-            await self._validate_user_exists(uow, schema.phone)
+            await self._validate_user_exists(
+                uow, schema.phone, schema.meeting_id
+            )
             if schema.meeting_id:
                 await self._check_meeting(schema.meeting_id, uow)
             user = await uow.users.update_one(
@@ -49,11 +53,20 @@ class UserService(BaseService):
             return user.to_read_model()
 
     async def _validate_user_exists(
-            self, uow: UoW, phone: str | None = None
+            self,
+            uow: UoW,
+            phone: str | None = None,
+            meeting_id: int | None = None,
+            email: str | None = None
     ) -> None:
         """Проверка уникальности пользователя."""
-        if phone and await uow.users.find_one(phone=phone):
-            raise UserAlreadyExists()
+        if meeting_id and phone and email:
+            values = {'email': email,
+                      'phone': phone}
+            for key, value in values.items():
+                user = await uow.users.find_one(**{key: value})
+                if user and user.meeting_id == meeting_id:
+                    raise UserAlreadyExists()
 
     async def _check_user(self, uow: UoW, id: int) -> None:
         if not await uow.users.find_one(id=id):

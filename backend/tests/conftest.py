@@ -6,10 +6,10 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from src.api.dependencies import unit_of_work
-from src.infrastructure.db import Base
-from src.application.protocols.unit_of_work import UnitOfWork
-from src.main import app
+from app.api.dependencies import unit_of_work
+from app.infrastructure.db import Base
+from app.application.protocols.unit_of_work import UnitOfWork
+from app.main import app
 
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent

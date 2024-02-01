@@ -2,11 +2,8 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 from app.application.protocols.unit_of_work import UoW
-from app.core.constants import DATE_FORMAT, ZONEINFO
-from app.core.exceptions import (
-    InvalidDate,
-    ObjectIsNoneException,
-)
+from app.core.constants import ZONEINFO
+from app.core.exceptions import InvalidDate, ObjectIsNoneException
 from app.domain.schemas import (
     GetMeeting,
     MeetingCreate,
@@ -21,13 +18,28 @@ class MeetingServices(BaseService):
         """Получить список собраний."""
         async with uow:
             meetings = await uow.meetings.find_all()
-            return [meeting.to_read_model() for meeting in meetings]
+            return [
+                meeting.to_read_model() for meeting in meetings if meeting.is_open
+            ]
 
     async def get_meeting(self, uow: UoW, id: int) -> GetMeeting:
         """Получить собрание по id."""
         async with uow:
             meeting = await uow.meetings.find_one(id=id)
             return meeting.to_read_model()
+
+    async def close_meeting(self, uow: UoW) -> None:
+        """
+        Закрытие собраний, если текущая дата превысила дату собрания.
+        """
+        async with uow:
+            meetings = await uow.meetings.find_meetings(is_open=True)
+            for meeting in meetings:
+                if meeting.date.timestamp() < dt.datetime.now(
+                        tz=ZoneInfo(ZONEINFO)
+                ).timestamp():
+                    meeting.is_open = False
+            await uow.commit()
 
     async def create_meeting(
             self, uow: UoW, schema: MeetingCreate
@@ -77,7 +89,7 @@ class MeetingServices(BaseService):
             return participants
 
     def _validate_meeting_date(self, date) -> None:
-        if date.strftime(DATE_FORMAT) < dt.datetime.now(
+        if date.timestamp() < dt.datetime.now(
                 tz=ZoneInfo(ZONEINFO)
-        ).strftime(DATE_FORMAT):
+        ).timestamp():
             raise InvalidDate()

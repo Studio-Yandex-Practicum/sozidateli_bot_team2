@@ -17,6 +17,10 @@ async def get_open_meetings():
 
 async def register_user(name, phone, email, assistance_segment):
     meeting = await get_open_meetings()
+    symbols = (' ', '(', ')', '+')
+    for symbol in symbols:
+        phone = phone.replace(symbol, '')
+    phone = f'+{phone}'
     user = schema_user.UserCreate(
         name=name,
         phone=phone,
