@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, ReplyKeyboardRemove
@@ -22,12 +24,14 @@ router = Router()
 @router.message(CommandStart())
 async def start(message: Message):
     if (message.from_user.id == int(settings.manager_chat_id)):
+        logging.info('Координатор запустил бота')
         return await message.answer(
             HELLO_COORDINATOR.format(full_name=message.from_user.full_name)
         )
     await message.answer(
         HELLO_MESSAGE.format(full_name=message.from_user.full_name)
     )
+    logging.info('Пользователь запустил бота')
     await message.answer(START_VOLUNTEERING_INFO)
 
     open_meetings = await get_open_meetings()
@@ -38,9 +42,11 @@ async def start(message: Message):
             ),
             reply_markup=get_invitation_keyboard(GO_TO_MEETING, REFUSE_MEETING)
         )
+        logging.info('Встречи получены')
     else:
         await message.answer(NO_MEETINGS_MESSAGE)
         await show_interview_invitation(message)
+        logging.error('Встречи не получены')
 
 
 @router.message(Command(commands=['go_to_open_meeting']))
@@ -55,9 +61,11 @@ async def registration_for_metting(
             )
         )
         await forms.show('registration-for-meeting-form')
+        logging.info('Форма регистрации на встречу открыта')
     else:
         await message.answer(NO_MEETINGS_MESSAGE)
         await show_interview_invitation(message)
+        logging.error('Встречи не получены')
 
 
 @router.message(F.text == GO_TO_MEETING)
@@ -65,17 +73,20 @@ async def show_metting_form(
     message: Message, forms: FormsManager
 ) -> None:
     await forms.show('registration-for-meeting-form')
+    logging.info('Форма регистрации на встречу открыта')
 
 
 @router.message(F.text == REFUSE_MEETING)
 async def show_interview_invitation(message: Message) -> None:
     await message.answer(INTERVIEW_INVITATION)
+    logging.info('Приглашение на встречу отклонено')
     await message.answer(
         INTERVIEW_INVITATION_MESSAGE,
         reply_markup=get_invitation_keyboard(
             GO_TO_INTERVIEW, REFUSE_INTERVIEW
         )
     )
+    logging.info('Приглашение на встречу получено')
 
 
 @router.message(Command(commands=['go_to_interview']))
@@ -93,16 +104,19 @@ async def command_help(message: Message) -> None:
         HELP_INFO,
         reply_markup=ReplyKeyboardRemove()
     )
+    logging.info('Помощь получена')
 
 
 @router.message(Command(commands=['contacts']))
 async def command_contacts(message: Message) -> None:
     await message.answer(CONTACTS_INFO)
+    logging.info('Контакты получены')
 
 
 @router.message(Command(commands=['documents']))
 async def get_documents_list(message: Message) -> None:
     await message.answer(DOCUMENTS_FOR_INTERVIEW)
+    logging.info('Документы получены')
 
 
 @router.message(Command(commands=['meeting_schedule']))
@@ -123,6 +137,8 @@ async def command_meeting_schedule(message: Message) -> None:
                 GO_TO_MEETING, REFUSE_MEETING
             )
         )
+        logging.info('Встречи получены')
     else:
         await message.answer(NO_MEETINGS_MESSAGE)
         await show_interview_invitation(message)
+        logging.error('Встречи не получены')
