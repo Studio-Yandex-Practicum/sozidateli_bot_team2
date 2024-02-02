@@ -1,4 +1,3 @@
-import asyncio
 from functools import partial
 from pathlib import Path
 
@@ -37,23 +36,10 @@ async def prepare_database():
 
 
 @pytest.fixture(scope='session')
-def event_loop():
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest.fixture(scope='session')
 async def async_client():
     app.dependency_overrides[unit_of_work] = partial(
         UnitOfWork,
         testing_async_session_maker
     )
-    async with AsyncClient(app=app, base_url='http://test') as client:
-        yield client
-
-
-@pytest.fixture(scope='session')
-async def create_user(user):
     async with AsyncClient(app=app, base_url='http://test') as client:
         yield client
