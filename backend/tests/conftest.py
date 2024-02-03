@@ -26,6 +26,10 @@ testing_async_session_maker = async_sessionmaker(
 metadata = Base.metadata
 metadata.bind = engine
 
+pytest_plugins = [
+    "tests.fixtures",
+]
+
 
 @pytest.fixture(autouse=True, scope="session")
 async def prepare_database():
