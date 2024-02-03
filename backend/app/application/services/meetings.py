@@ -35,8 +35,10 @@ class MeetingServices(BaseService):
         async with uow:
             meetings = await uow.meetings.find_meetings(is_open=True)
             for meeting in meetings:
-                if meeting.date.timestamp() < dt.datetime.now(
-                        tz=ZoneInfo(ZONEINFO)
+                if (
+                        meeting.date - dt.timedelta(hours=3)
+                ).timestamp() < dt.datetime.now(
+                    tz=ZoneInfo(ZONEINFO)
                 ).timestamp():
                     meeting.is_open = False
             await uow.commit()
@@ -89,7 +91,9 @@ class MeetingServices(BaseService):
             return participants
 
     def _validate_meeting_date(self, date) -> None:
-        if date.timestamp() < dt.datetime.now(
-                tz=ZoneInfo(ZONEINFO)
+        if (
+                meeting.date - dt.timedelta(hours=3)
+        ).timestamp() < dt.datetime.now(
+            tz=ZoneInfo(ZONEINFO)
         ).timestamp():
             raise InvalidDate()
