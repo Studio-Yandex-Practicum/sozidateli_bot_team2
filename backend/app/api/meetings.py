@@ -44,7 +44,7 @@ async def create_meeting(uow: UoWDep, meeting: MeetingCreate):
     """Создать собрание."""
     try:
         return await MeetingServices().create_meeting(uow, meeting)
-    except InvalidDate() as error:
+    except InvalidDate as error:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=str(error),
