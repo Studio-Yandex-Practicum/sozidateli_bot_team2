@@ -1,6 +1,6 @@
+import logging
 from collections.abc import Generator
 from http import HTTPStatus
-import logging
 from pathlib import Path
 
 import aiohttp
@@ -10,7 +10,6 @@ from core import settings
 from core.logging_config import configure_logging
 from schemas import users
 from services.exceptions import HTTPRequestError
-
 
 configure_logging(Path(__file__).parent / 'logs')
 

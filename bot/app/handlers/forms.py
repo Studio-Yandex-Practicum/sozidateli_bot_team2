@@ -1,9 +1,9 @@
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram_forms import dispatcher
 from aiogram_forms.forms import Form, FormsManager, fields
+
 from core import settings
 from services import exceptions
-
 from .constants import (INFO_ABOUT_USER_FOR_INTERVIEW,
                         INFO_ABOUT_USER_FOR_MEETING,
                         NAME_FIELD_TOO_SHORT_MESSAGE, SHOW_DOCUMENTS,
@@ -36,7 +36,7 @@ class RegistrationForMeetingForm(Form):
 
     @classmethod
     async def callback(
-        cls, message: Message, forms: FormsManager, **data
+            cls, message: Message, forms: FormsManager, **data
     ) -> None:
 
         registration_data = await forms.get_data(
@@ -44,7 +44,7 @@ class RegistrationForMeetingForm(Form):
         )
         volunteering_type = ''.join(
             [item[0] for item in VOLUNTEERING_TYPE
-                if registration_data['volunteering_type'] in item]
+             if registration_data['volunteering_type'] in item]
         )
 
         try:
@@ -102,15 +102,14 @@ class RegistrationForInterviewForm(Form):
 
     @classmethod
     async def callback(
-        cls, message: Message, forms: FormsManager, **data
+            cls, message: Message, forms: FormsManager, **data
     ) -> None:
-
         registration_data = await forms.get_data(
             'registration-for-interview-form'
         )
         volunteering_type = ''.join(
             [item[0] for item in VOLUNTEERING_TYPE
-                if registration_data['volunteering_type'] in item]
+             if registration_data['volunteering_type'] in item]
         )
 
         await data['bot'].send_message(
