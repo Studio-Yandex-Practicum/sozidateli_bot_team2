@@ -37,8 +37,8 @@ class MeetingView(ModelView):
         if data["date"] is None:
             errors["date"] = "Нужно указать дату собрания."
 
-        if data["date"] and (
-                data["date"] - dt.timedelta(hours=3)
+        if data["date"] and data["date"].replace(
+                tzinfo=ZoneInfo(ZONEINFO)
         ).timestamp() < dt.datetime.now(
                 tz=ZoneInfo(ZONEINFO)
         ).timestamp():
