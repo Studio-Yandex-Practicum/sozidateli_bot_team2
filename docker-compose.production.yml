@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:7.2
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  postgresql:
+    image: postgres:16
+    env_file: ./.env
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    image: wolfmtk/sozidateli_backend
+    env_file: ./.env
+    restart: always
+    depends_on:
+      - postgresql
+
+  bot:
+    image: wolfmtk/sozidateli_bot
+    env_file: ./.env
+    restart: always
+    depends_on:
+      - postgresql
+      - backend
+
+  nginx:
+    image: wolfmtk/sozidateli_gateway
+    env_file: .env
+    restart: always
+    ports:
+      - "8000:80"
+    depends_on:
+      - postgresql
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
