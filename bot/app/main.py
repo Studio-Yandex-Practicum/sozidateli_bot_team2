@@ -30,7 +30,6 @@ async def setup_bot_commands(bot: Bot):
         BotCommand(command='/contacts', description=CONTACTS_COMMAND)
     ]
     await bot.set_my_commands(main_menu_commands)
-    logging.info('Команды бота установлены')
 
 
 async def main():
