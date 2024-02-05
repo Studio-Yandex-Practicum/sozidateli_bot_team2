@@ -7,7 +7,9 @@ from aiogram.exceptions import AiogramError
 from aiogram.fsm.storage.redis import RedisStorage, Redis
 from aiogram.types.bot_command import BotCommand
 from aiogram.utils.callback_answer import CallbackAnswerMiddleware
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler
 from aiogram_forms import dispatcher
+from aiohttp import web
 
 from core import settings
 from core.logging_config import configure_logging
@@ -49,10 +51,21 @@ async def main():
 
     try:
         logging.info('Запуск бота')
-        await dp.start_polling(
-            bot,
-            allowed_updates=dp.resolve_used_update_types()
+        await bot.set_webhook(url=f'{settings.WEBHOOK_URI}{settings.WEBHOOK_PATH}',
+                              drop_pending_updates=True,
+                              allowed_updates=dp.resolve_used_update_types())
+        app = web.Application()
+        SimpleRequestHandler(dispatcher=dp, bot=bot).register(
+            app, path=settings.WEBHOOK_PATH
         )
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner,
+                           host=settings.WEB_SERVER_HOST,
+                           port=settings.WEB_SERVER_PORT)
+        await site.start()
+
+        await asyncio.Event().wait()
     except AiogramError as error:
         logging.exception(f'Бот упал с ошибкой {error}')
     except Exception as error:
