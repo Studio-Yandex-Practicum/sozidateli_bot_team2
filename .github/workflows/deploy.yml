@@ -77,7 +77,7 @@ jobs:
       - name: Push to DockerHub
         uses: docker/build-push-action@v4
         with:
-          context: ./backend/
+          context: ./bot/
           push: true
           tags: wolfmtk/sozidateli_bot
 
