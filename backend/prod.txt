@@ -26,3 +26,4 @@ starlette==0.35.1
 starlette-admin==0.13.1
 typing_extensions==4.9.0
 uvicorn==0.27.0.post1
+lxml==5.1.0

@@ -13,7 +13,6 @@ from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 
 from app.application.repositories.users import UserRepository
-from app.domain.models import User
 from app.domain.models.enums import AssistanceSegment
 
 
@@ -53,7 +52,7 @@ class UserView(ModelView):
         ),
     ]
     label = "Участники"
-    sortable_fields = [User.meeting]
+    sortable_fields = ["name", "assistance_segment"]
 
     async def validate(self, request: Request, data: dict[str, Any]) -> None:
         """Валидация полей."""
