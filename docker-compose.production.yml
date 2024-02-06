@@ -15,14 +15,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    build: ./backend
+    image: wolfmtk/sozidateli_backend
     env_file: ./.env
     restart: always
     depends_on:
       - postgresql
 
   bot:
-    build: ./bot
+    image: wolfmtk/sozidateli_bot
     env_file: ./.env
     restart: always
     depends_on:
@@ -30,7 +30,7 @@ services:
       - backend
 
   nginx:
-    build: ./nginx
+    image: wolfmtk/sozidateli_gateway
     env_file: .env
     restart: always
     ports:

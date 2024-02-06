@@ -10,3 +10,7 @@ class Settings:
     manager_chat_id: int = os.getenv('MANAGER_CHAT_ID')
     url: str = os.getenv('URL', 'http://localhost:8000')
     redis_host: str = os.getenv("REDIS_HOST", "localhost")
+    WEBHOOK_PATH: str | None = os.getenv('WEBHOOK_PATH')
+    WEBHOOK_URI: str | None = os.getenv('WEBHOOK_URI')
+    WEB_SERVER_HOST: str = os.getenv('WEB_SERVER_HOST', 'localhost')
+    WEB_SERVER_PORT: int = os.getenv('WEB_SERVER_PORT', 8000)
