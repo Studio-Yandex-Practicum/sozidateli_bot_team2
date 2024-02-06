@@ -22,11 +22,9 @@ async def parser_date() -> None | dt.datetime:
         )
         try:
             date_text = re.findall(DATE_PATTERN, text[0].text)[0].split()
-        except IndexError:
-            return None
-        if len(date_text) > 3:
             date = (f'{date_text[0]} {MONTH[date_text[1]]} '
                     f'{dt.datetime.now().year} '
                     f'{date_text[-1].replace(".", ":")}:00')
             return dt.datetime.strptime(date, DATE_FORMAT)
-        return None
+        except (IndexError, KeyError):
+            return None
