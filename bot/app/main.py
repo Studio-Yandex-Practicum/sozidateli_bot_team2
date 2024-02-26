@@ -51,21 +51,28 @@ async def main():
 
     try:
         logging.info('Запуск бота')
-        await bot.set_webhook(url=f'{settings.WEBHOOK_URI}{settings.WEBHOOK_PATH}',
-                              drop_pending_updates=True,
-                              allowed_updates=dp.resolve_used_update_types())
-        app = web.Application()
-        SimpleRequestHandler(dispatcher=dp, bot=bot).register(
-            app, path=settings.WEBHOOK_PATH
-        )
-        runner = web.AppRunner(app)
-        await runner.setup()
-        site = web.TCPSite(runner,
-                           host=settings.WEB_SERVER_HOST,
-                           port=settings.WEB_SERVER_PORT)
-        await site.start()
+        if settings.is_pooling:
+            await bot.delete_webhook()
+            await dp.start_polling(
+                bot,
+                allowed_updates=dp.resolve_used_update_types()
+            )
+        else:
+            await bot.set_webhook(url=f'{settings.webhook_uri}{settings.webhook_path}',
+                                  drop_pending_updates=True,
+                                  allowed_updates=dp.resolve_used_update_types())
+            app = web.Application()
+            SimpleRequestHandler(dispatcher=dp, bot=bot).register(
+                app, path=settings.webhook_path
+            )
+            runner = web.AppRunner(app)
+            await runner.setup()
+            site = web.TCPSite(runner,
+                               host=settings.web_server_host,
+                               port=settings.web_server_port)
+            await site.start()
 
-        await asyncio.Event().wait()
+            await asyncio.Event().wait()
     except AiogramError as error:
         logging.exception(f'Бот упал с ошибкой {error}')
     except Exception as error:
