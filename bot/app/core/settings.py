@@ -10,7 +10,10 @@ class Settings:
     manager_chat_id: int = os.getenv('MANAGER_CHAT_ID')
     url: str = os.getenv('URL', 'http://localhost:8000')
     redis_host: str = os.getenv("REDIS_HOST", "localhost")
-    WEBHOOK_PATH: str | None = os.getenv('WEBHOOK_PATH')
-    WEBHOOK_URI: str | None = os.getenv('WEBHOOK_URI')
-    WEB_SERVER_HOST: str = os.getenv('WEB_SERVER_HOST', 'localhost')
-    WEB_SERVER_PORT: int = os.getenv('WEB_SERVER_PORT', 8000)
+    webhook_path: str | None = os.getenv('WEBHOOK_PATH')
+    webhook_uri: str | None = os.getenv('WEBHOOK_URI')
+    web_server_host: str = os.getenv('WEB_SERVER_HOST', 'localhost')
+    web_server_port: int | str = os.getenv('WEB_SERVER_PORT', 8000)
+    is_pooling: bool = (True if os.getenv(
+        'IS_POOLING'
+    ) in ('true', '1', 'True') else False)
